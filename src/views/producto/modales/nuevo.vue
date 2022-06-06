@@ -29,13 +29,15 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button type="primary" :on-submit="onSubmit">Guardar</el-button>
+        <el-button type="primary" @click="onSubmit">Guardar</el-button>
       </template>
     </modal>
   </div>
 </template>
 
 <script>
+  import { ElMessage, ElMessageBox } from 'element-plus'
+
   name:'nuevoProducto'
   export default {
     data() {
@@ -67,7 +69,11 @@
 
         this.axios.post(this.url, params)
           .then(response => {
-            console.log(params)
+            ElMessage({
+                type: 'success',
+                message: '¡Producto añadido con éxito!',
+            })
+            this.cerrar()
           })
       }
     }

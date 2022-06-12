@@ -15,34 +15,184 @@
 
     <h3>MENU</h3>
     <div class="menu">
-      <router-link class="button" to="/">
-        <span class="material-icons">home</span>
-        <span class="text">Home</span>
-      </router-link>      
+      <!-- Home -->
+      <div>
+        <router-link class="button" to="/" v-if="is_expanded">
+          <span class="material-icons">home</span>
+          <span class="text">Home</span>
+        </router-link>   
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Home"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">home</span>
+            <span class="text">Home</span>
+          </router-link> 
+        </el-tooltip>
+      </div>
+         
+
+      <!-- Producto -->
+      <div>
+        <router-link class="button" to="/producto" v-if="is_expanded">
+          <span class="material-icons">inventory_2</span>
+          <span class="text">Productos</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Productos"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/producto" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">inventory_2</span>
+            <span class="text">Productos</span>
+          </router-link>
+        </el-tooltip>
+      </div>
       
-      <router-link class="button" to="/producto">
-        <span class="material-icons">description</span>
-        <span class="text">Productos</span>
-      </router-link>      
+
+      <!-- Categoria -->
+      <div>
+        <router-link class="button" to="/categoria" v-if="is_expanded">
+          <span class="material-icons">category</span>
+          <span class="text">Categorias</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Categorias"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/categoria" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">category</span>
+            <span class="text">Categorias</span>
+          </router-link>
+        </el-tooltip>
+        
+      </div>
       
-      <router-link class="button" to="/about">
-        <span class="material-icons">group</span>
-        <span class="text">Nosotros</span>
-      </router-link>      
+
+      <!-- Unidad de medida -->
+      <div>
+        <router-link class="button" to="/unidad-medida" v-if="is_expanded">
+          <span class="material-icons">balance</span>
+          <span class="text">Un. de medida</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Unid. de medida"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/unidad-medida" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">balance</span>
+            <span class="text">Un. de medida</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
+      <!-- Planificacion -->
+      <div>
+        <router-link class="button" to="/planificacion" v-if="is_expanded">
+          <span class="material-icons">assignment</span>
+          <span class="text">Planificación</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Planificación"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/planificacion" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">assignment</span>
+            <span class="text">Planificación</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
       
-      <router-link class="button" to="/contacto">
-        <span class="material-icons">call</span>
-        <span class="text">Contacto</span>
-      </router-link>      
+
+      <!-- Nosotros -->
+      <div>
+        <router-link class="button" to="/about" v-if="is_expanded">
+          <span class="material-icons">group</span>
+          <span class="text">Nosotros</span>
+        </router-link>  
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Nosotros"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/about" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">group</span>
+            <span class="text">Nosotros</span>
+          </router-link>
+        </el-tooltip>
+
+      </div>
+          
+      
+      <!-- Contacto -->
+      <div>
+        <router-link class="button" to="/contacto" v-if="is_expanded">
+          <span class="material-icons">call</span>
+          <span class="text">Contacto</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Contacto"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/contacto" v-if="!is_expanded || is_expanded">
+          <span class="material-icons">call</span>
+          <span class="text">Contacto</span>
+        </router-link>
+        </el-tooltip>
+
+      </div>            
     </div>
 
     <div class="flex"></div>
 
     <div class="menu">
-      <router-link class="button" to="/configuracion">
-        <span class="material-icons">settings</span>
-        <span class="text">Configuración</span>
+      <!-- Configuracion -->
+      <router-link class="button" to="/configuracion" v-if="is_expanded">
+          <span class="material-icons">settings</span>
+          <span class="text">Configuración</span>
       </router-link>  
+      
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="Configuración"
+        placement="right-start"
+        v-if="!is_expanded"
+      >
+        <router-link class="button" to="/configuracion" v-if="!is_expanded || is_expanded">
+          <span class="material-icons">settings</span>
+          <span class="text">Configuración</span>
+        </router-link>  
+      </el-tooltip>
     </div>
   </aside>
 </template>

@@ -8,13 +8,25 @@ const router = createRouter({
             component: () => import('../views/home/index.vue')
         },
         {
-            path: '/about',
-            component: () => import('../views/about/index.vue')
-        },
-        {
             path: '/producto',
             component: () => import('../views/producto/index.vue')
         },
+        {
+            path: '/categoria',
+            component: () => import('../views/categoria/index.vue')
+        },
+        {
+            path: '/unidad-medida',
+            component: () => import('../views/unidadMedida/index.vue')
+        },
+        {
+            path: '/planificacion',
+            component: () => import('../views/planificacion/index.vue')
+        },
+        {
+            path: '/about',
+            component: () => import('../views/about/index.vue')
+        },        
         {
             path: '/contacto',
             component: () => import('../views/contacto/index.vue')

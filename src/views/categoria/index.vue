@@ -2,7 +2,7 @@
   <main>
     <el-card>
       <template #header>
-        <h1>Productos</h1>          
+        <h1>Categorías</h1>          
       </template>
         <el-button 
           type="primary" 
@@ -15,59 +15,14 @@
 
       <!-- Tabla para mostrar los datos -->
       <div class="contenedor-tabla">
-        <el-table :data="articulos" fixed v-loading="loading">
+        <el-table :data="categorias" fixed v-loading="loading">
           <!-- Nombre -->
           <el-table-column            
             label="Nombre" 
             prop="descripcion"           
           >
               <template #default="props">
-                <span>{{ props.row.descripcion }}</span>
-              </template>
-          </el-table-column>
-
-          <!-- Categoria -->
-          <el-table-column            
-            label="Categoria" 
-            prop="categoria"           
-          >
-              <template #default="props">
-                <span>{{ props.row.categoria.nombre }}</span>
-              </template>
-          </el-table-column>
-          
-          <!-- Unidad de medida -->
-          <el-table-column            
-            label="Un. medida" 
-            prop="unidadMedida"           
-          >
-              <template #default="props">
-                <span>{{ props.row.unidadMedida.nombre }}</span>
-              </template>
-          </el-table-column>
-          
-          <!-- Stock -->
-          <el-table-column 
-            label="Stock" 
-            prop="stock" 
-            header-align="right" 
-            align="right"
-          >
-              <template #default="props">
-                <span>{{ props.row.stock }}</span>
-              </template>
-          </el-table-column>
-          
-
-          <!-- Precio -->
-          <el-table-column 
-            label="Precio" 
-            prop="precio" 
-            header-align="right" 
-            align="right"
-          >
-              <template #default="props">
-                <span>${{ props.row.precio }}</span>
+                <span>{{ props.row.nombre }}</span>
               </template>
           </el-table-column>
 
@@ -77,7 +32,6 @@
             prop="editar" 
             header-align="right" 
             align="right"
-            width="90px"
           >
               <template #default="props">
                 <el-button 
@@ -96,7 +50,6 @@
             prop="eliminar" 
             header-align="right" 
             align="right"
-            width="90px"
           >
               <template #default="props">
                 <el-button 
@@ -107,9 +60,19 @@
                   <span class="material-icons">delete</span>
                 </el-button>
               </template>
-          </el-table-column>
-        
-        </el-table>
+          </el-table-column>        
+        </el-table>       
+
+        <!-- <el-select v-model="value" class="m-2" placeholder="Select" size="large" filterable>
+          <el-option
+            v-for="item in categoriasSelect"
+            :key="item.id"
+            :label="item.nombre"
+            :value="item.id"
+          />
+        </el-select>
+        {{value}}
+        <el-button @click="mostrar">mostrar</el-button> -->
       </div>
     </el-card>
   </main>
@@ -144,9 +107,10 @@
     
     data() {
       return {
-        url: 'http://localhost:8000/api/articulo/',
-        articulos: [],
+        categorias: [],
+        categoriasSelect: [],
         loading: false,
+        value: null,
       }
     },
 
@@ -157,12 +121,31 @@
     methods: {
       async obtenerTodos(){
         this.loading = true
-        await this.axios.get(this.base_url + "/articulo/obtenerTodos")
+        await this.axios.get(this.base_url + "/categoria/obtenerTodos")
           .then(response =>{
-            this.articulos = response.data;   
+            this.categorias = response.data; 
+            
+            console.log(this.categorias)
         })    
         this.loading = false    
-      }
+        this.obtenerTodosSelect()
+      },
+
+      async obtenerTodosSelect(){
+        await this.axios.get(this.base_url + "/categoria/obtenerTodosSelect")
+          .then(response => {
+            this.categoriasSelect = response.data
+            console.log(this.categoriasSelect)
+          });
+      },
+
+      mostrar(){
+        console.log(this.value.id)
+      },
+
+      obtenerLabel(item){
+        console.log(item)
+      },
     },
 
   }

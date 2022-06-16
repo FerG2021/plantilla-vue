@@ -175,8 +175,46 @@
     <div class="flex"></div>
 
     <div class="menu">
+      <div class="button logout" v-if="is_expanded">
+        <span class="material-icons" @click="logout()">account_circle</span>
+        <span class="text">{{  $store.state.user.name }}</span>
+      </div>
+
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="Usuario"
+        placement="right-start"
+        v-if="!is_expanded"
+      >
+        <div class="button logout"  v-if="!is_expanded">
+          <span class="material-icons" @click="logout()">account_circle</span>
+          <span class="text">{{  $store.state.user.name }}</span>
+        </div>
+      </el-tooltip>
+
+      <!-- Logout -->
+      <div class="button logout" v-if="is_expanded">
+        <span class="material-icons" @click="logout()">logout</span>
+        <span class="text">Salir</span>
+      </div>
+      
+      <el-tooltip
+        class="box-item"
+        effect="dark"
+        content="Salir"
+        placement="right-start"
+        v-if="!is_expanded"
+      >
+        <div class="button logout" v-if="!is_expanded">
+          <span class="material-icons" @click="logout()">logout</span>
+          <span class="text">Salir</span>
+        </div>
+      </el-tooltip>
+
+
       <!-- Configuracion -->
-      <router-link class="button" to="/configuracion" v-if="is_expanded">
+      <!-- <router-link class="button" to="/configuracion" v-if="is_expanded">
           <span class="material-icons">settings</span>
           <span class="text">Configuración</span>
       </router-link>  
@@ -192,7 +230,7 @@
           <span class="material-icons">settings</span>
           <span class="text">Configuración</span>
         </router-link>  
-      </el-tooltip>
+      </el-tooltip> -->
     </div>
   </aside>
 </template>
@@ -209,6 +247,18 @@
     is_expanded.value = !is_expanded.value
 
     // localStorage.setItem("is_expanded", is_expanded.value) 
+  }
+</script>
+
+<script>
+  export default {
+    methods: {
+      async logout(){
+        await this.$store.dispatch("logout")
+        // redirect
+        return this.$router.replace("/login")
+      }
+    },
   }
 </script>
 
@@ -338,6 +388,10 @@
     @media(max-width: 768px){
       position: fixed;
       z-index: 99;
+    }
+
+    .logout{
+      cursor: pointer;
     }
   }
 </style>

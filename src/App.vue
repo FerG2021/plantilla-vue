@@ -1,19 +1,30 @@
 <template>
-  <div class="app">
+  <div v-if="!$store.state.auth">
+    <Login />
+  </div>
+  <div class="app"  v-else>
     <!-- SIDEBAR -->
     <Sidebar />   
-    
     <router-view></router-view>
   </div>
+
+  
 </template>
 
 <script>
   import Sidebar from './components/Sidebar.vue'
+  import Login from './views/login/index.vue'
   
   export default {
     components:{
       Sidebar,
-    }  
+      Login
+    } ,
+    data() {
+      return {
+      }
+    },
+
   }
 </script>
 

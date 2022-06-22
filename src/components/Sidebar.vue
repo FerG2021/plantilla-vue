@@ -1,7 +1,7 @@
 <template>
   <aside :class="`${is_expanded && 'is-expanded' }`">
     <div class="logo">
-      <img src="../assets/logo.png" alt="Vue">
+      <img src="../assets/modular_logo.jpg" alt="Vue">
     </div>
 
     <!-- items del menu -->
@@ -35,6 +35,71 @@
           </router-link> 
         </el-tooltip>
       </div>
+
+       <!-- Planificacion -->
+      <div>
+        <router-link class="button" to="/planificacion" v-if="is_expanded">
+          <span class="material-icons">assignment</span>
+          <span class="text">Planificación</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Planificación"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/planificacion" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">assignment</span>
+            <span class="text">Planificación</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
+      <!-- Proveedor -->
+      <div>
+        <router-link class="button" to="/proveedor" v-if="is_expanded">
+          <span class="material-icons">local_shipping</span>
+          <span class="text">Proveedores</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Proveedores"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/proveedor" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">local_shipping</span>
+            <span class="text">Proveedores</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
+      <!-- Rubro -->
+      <div>
+        <router-link class="button" to="/rubro" v-if="is_expanded">
+          <span class="material-icons">sell</span>
+          <span class="text">Rubros</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Rubros"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/rubro" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">sell</span>
+            <span class="text">Rubros</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
+
          
 
       <!-- Producto -->
@@ -57,6 +122,9 @@
           </router-link>
         </el-tooltip>
       </div>
+
+
+      
       
 
       <!-- Categoria -->
@@ -103,46 +171,27 @@
         </el-tooltip>
       </div>
 
-      <!-- Planificacion -->
-      <div>
-        <router-link class="button" to="/planificacion" v-if="is_expanded">
-          <span class="material-icons">assignment</span>
-          <span class="text">Planificación</span>
-        </router-link>
-
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="Planificación"
-          placement="right-start"
-          v-if="!is_expanded"
-        >
-          <router-link class="button" to="/planificacion" v-if="!is_expanded || is_expanded">
-            <span class="material-icons">assignment</span>
-            <span class="text">Planificación</span>
-          </router-link>
-        </el-tooltip>
-      </div>
+     
 
       
 
-      <!-- Nosotros -->
+      <!-- Usuarios -->
       <div>
-        <router-link class="button" to="/about" v-if="is_expanded">
+        <router-link class="button" to="/usuarios" v-if="is_expanded">
           <span class="material-icons">group</span>
-          <span class="text">Nosotros</span>
+          <span class="text">Usuarios</span>
         </router-link>  
 
         <el-tooltip
           class="box-item"
           effect="dark"
-          content="Nosotros"
+          content="Usuarios"
           placement="right-start"
           v-if="!is_expanded"
         >
-          <router-link class="button" to="/about" v-if="!is_expanded || is_expanded">
+          <router-link class="button" to="/usuarios" v-if="!is_expanded || is_expanded">
             <span class="material-icons">group</span>
-            <span class="text">Nosotros</span>
+            <span class="text">Usuarios</span>
           </router-link>
         </el-tooltip>
 
@@ -174,8 +223,31 @@
 
     <div class="flex"></div>
 
+    <!-- Mi cuenta -->
     <div class="menu">
-      <div class="button logout" v-if="is_expanded">
+      <div>
+        <router-link class="button" to="/mi-cuenta" v-if="is_expanded">
+          <span class="material-icons">account_circle</span>
+          <span class="text">{{ $store.state.user.name }}</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Mi cuenta"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/mi-cuenta" v-if="!is_expanded || is_expanded">
+          <span class="material-icons">account_circle</span>
+          <span class="text">{{ $store.state.user.name }}</span>
+        </router-link>
+        </el-tooltip>
+
+      </div>    
+
+
+      <!-- <div class="button logout" v-if="is_expanded">
         <span class="material-icons" @click="logout()">account_circle</span>
         <span class="text">{{  $store.state.user.name }}</span>
       </div>
@@ -191,7 +263,7 @@
           <span class="material-icons" @click="logout()">account_circle</span>
           <span class="text">{{  $store.state.user.name }}</span>
         </div>
-      </el-tooltip>
+      </el-tooltip> -->
 
       <!-- Logout -->
       <div class="button logout" v-if="is_expanded">

@@ -12,6 +12,10 @@ const router = createRouter({
             component: () => import('../views/home/index.vue')
         },
         {
+            path: '/planificacion',
+            component: () => import('../views/planificacion/index.vue')
+        },
+        {
             path: '/producto',
             component: () => import('../views/producto/index.vue')
         },
@@ -24,12 +28,17 @@ const router = createRouter({
             component: () => import('../views/unidadMedida/index.vue')
         },
         {
-            path: '/planificacion',
-            component: () => import('../views/planificacion/index.vue')
+            path: '/proveedor',
+            component: () => import('../views/proveedor/index.vue')
         },
         {
-            path: '/about',
-            component: () => import('../views/about/index.vue')
+            path: '/rubro',
+            component: () => import('../views/rubro/index.vue')
+        },
+        
+        {
+            path: '/usuarios',
+            component: () => import('../views/usuarios/index.vue')
         },        
         {
             path: '/contacto',
@@ -38,6 +47,10 @@ const router = createRouter({
         {
             path: '/configuracion',
             component: () => import('../views/configuracion/index.vue')
+        },
+        {
+            path: '/mi-cuenta',
+            component: () => import('../views/miCuenta/index.vue')
         },
     ]
 })

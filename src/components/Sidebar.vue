@@ -36,23 +36,65 @@
         </el-tooltip>
       </div>
 
-       <!-- Planificacion -->
+      <!-- Presupuestacion -->
       <div>
-        <router-link class="button" to="/planificacion" v-if="is_expanded">
+        <router-link class="button" to="/presupuestacion" v-if="is_expanded">
           <span class="material-icons">assignment</span>
-          <span class="text">Planificación</span>
+          <span class="text">Presupuestación</span>
         </router-link>
 
         <el-tooltip
           class="box-item"
           effect="dark"
-          content="Planificación"
+          content="Presupuestación"
           placement="right-start"
           v-if="!is_expanded"
         >
-          <router-link class="button" to="/planificacion" v-if="!is_expanded || is_expanded">
+          <router-link class="button" to="/presupuestacion" v-if="!is_expanded || is_expanded">
             <span class="material-icons">assignment</span>
-            <span class="text">Planificación</span>
+            <span class="text">Presupuestación</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
+      <!-- Planes -->
+      <div>
+        <router-link class="button" to="/plan" v-if="is_expanded">
+          <span class="material-icons">note_alt</span>
+          <span class="text">Planes</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Planes"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/plan" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">note_alt</span>
+            <span class="text">Planes</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
+      <!-- Producto -->
+      <div>
+        <router-link class="button" to="/producto" v-if="is_expanded">
+          <span class="material-icons">inventory_2</span>
+          <span class="text">Productos</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Productos"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/producto" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">inventory_2</span>
+            <span class="text">Productos</span>
           </router-link>
         </el-tooltip>
       </div>
@@ -102,33 +144,14 @@
 
          
 
-      <!-- Producto -->
-      <div>
-        <router-link class="button" to="/producto" v-if="is_expanded">
-          <span class="material-icons">inventory_2</span>
-          <span class="text">Productos</span>
-        </router-link>
-
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="Productos"
-          placement="right-start"
-          v-if="!is_expanded"
-        >
-          <router-link class="button" to="/producto" v-if="!is_expanded || is_expanded">
-            <span class="material-icons">inventory_2</span>
-            <span class="text">Productos</span>
-          </router-link>
-        </el-tooltip>
-      </div>
+      
 
 
       
       
 
       <!-- Categoria -->
-      <div>
+      <!-- <div>
         <router-link class="button" to="/categoria" v-if="is_expanded">
           <span class="material-icons">category</span>
           <span class="text">Categorias</span>
@@ -147,11 +170,11 @@
           </router-link>
         </el-tooltip>
         
-      </div>
+      </div> -->
       
 
       <!-- Unidad de medida -->
-      <div>
+      <!-- <div>
         <router-link class="button" to="/unidad-medida" v-if="is_expanded">
           <span class="material-icons">balance</span>
           <span class="text">Un. de medida</span>
@@ -169,7 +192,7 @@
             <span class="text">Un. de medida</span>
           </router-link>
         </el-tooltip>
-      </div>
+      </div> -->
 
      
 
@@ -199,7 +222,7 @@
           
       
       <!-- Contacto -->
-      <div>
+      <!-- <div>
         <router-link class="button" to="/contacto" v-if="is_expanded">
           <span class="material-icons">call</span>
           <span class="text">Contacto</span>
@@ -218,7 +241,7 @@
         </router-link>
         </el-tooltip>
 
-      </div>            
+      </div>             -->
     </div>
 
     <div class="flex"></div>

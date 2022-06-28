@@ -2,7 +2,7 @@
   <main>
     <el-card>
       <template #header>
-        <h1>Planificación</h1>          
+        <h1>Presupuestación</h1>          
       </template>
         <el-button 
           type="primary" 

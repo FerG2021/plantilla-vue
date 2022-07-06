@@ -12,10 +12,10 @@
         simple
         style="margin-top: 5px; margin-bottom: 5px"
       >
-        <el-step title="Paso 1"></el-step>
-        <el-step title="Paso 2"></el-step>
-        <el-step title="Paso 3"></el-step>
-        <el-step title="Paso 4"></el-step>
+        <el-step title="Obra"></el-step>
+        <el-step title="Materiales"></el-step>
+        <el-step title="Proveedores"></el-step>
+        <el-step title="Resumen"></el-step>
       </el-steps>
 
       <!-- Paso 1 -->
@@ -37,6 +37,7 @@
               />
             </el-select>
           </el-form-item>
+          <!-- {{form.nombreObra}} -->
           <!-- <el-form-item label="Nombre obra" prop="nombreObra">
             <el-input v-model="form.nombreObra"></el-input>
           </el-form-item> -->
@@ -236,6 +237,7 @@
           <el-button  
             type="primary"    
             class="btnSiguiente"
+            :disabled="deshabilitarBtnSiguientePaso1()"
             @click="activar1YRecargar()"
           >
             Siguiente
@@ -248,7 +250,7 @@
         <!-- mostrar los datos de la seccion anterior -->
         <el-row :gutter="10">
           <el-col :span="6">
-            <span>Incio presupuestación</span>
+            <span>Inicio presupuestación</span>
             <el-input
               v-model="mostrarFechaIncioPresupuestacion"
               disabled
@@ -320,6 +322,7 @@
           <el-col :span="4">
             <span>Cantidad a comprar</span>
             <el-input-number
+              v-loading="loadingCantidadAComprar"
               v-model="cantidadAComprarProductoSeleccionado"
               :controls="false"
               style="width: 100%"
@@ -364,14 +367,14 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="cantidad" label="Cant. a comprar">
+          <el-table-column prop="cantidad" label="Cant. a comp.">
             <template #default="props">
               <span>{{ props.row.cantidadAComprar }}</span>
             </template>
           </el-table-column>
 
           <el-table-column prop="cantidadDeposito" label="Cant. depósito">
-            <template #default="scope">
+            <!-- <template #default="scope">
               <el-input-number 
                 v-model="scope.row.cantidadDeposito" 
                 :max="scope.row.cantidadAComprar"
@@ -380,16 +383,18 @@
                 text-align="center"
                 style="width: 100%"
               />
-              
+            </template> -->
+            <template #default="props">
+              <span>{{ props.row.cantidadDeposito }}</span>
             </template>
           </el-table-column>
 
           <el-table-column prop="cantidadDeposito" label="">
-            <template #default="props">
+            <template #default="scope">
               <el-button
                 type="primary"
                 style="width: 10%; margin-bottom: 3px; margin-left: 3px"
-                @click="$refs.modalBuscarProductoDeposito.abrir(props.row.producto_id)"
+                @click="$refs.modalBuscarProductoDeposito.abrir(scope)"
               >
                 <span class="material-icons">search</span>
               </el-button>
@@ -397,8 +402,6 @@
             </template>
           </el-table-column>
 
-
-          
           <el-table-column prop="cantidadReal" label="Cant. real a comprar">
             <template #default="scope">
               <el-input-number 
@@ -425,6 +428,8 @@
           </el-table-column>
         
         </el-table>
+        <!-- {{arrayProductosAComprar}} -->
+        <!-- {{arrayRubrosAComprar}} -->
 
 
         <div class="contenedorBtnSiguienteAtras">
@@ -439,7 +444,7 @@
           <el-button  
             type="primary"    
             class="btnSiguiente"
-            @click="active = 2"
+            @click="activar2yTraerProveedoresxRubro()"
 
           >
             Siguiente
@@ -448,30 +453,127 @@
       </div>
 
       <!-- Fraccionable -->
-      <div v-show="active == 2" style="padding: 30px">
+      <div v-show="active == 2" style="padding: 30px" v-loading="loadingProveedoresParaMail">
 
-
-          <div class="contenedorBtnSiguienteAtras">
-            <el-button  
-              type="info"    
-              class="btnAtras"
-              @click="active = 1"
+        <div v-for="(item, index) in arrayRubrosAComprar" :key="index">
+          <!-- <div><h3><b>{{item.rubro_nombre}}</b></h3></div> -->
+          <el-checkbox 
+            v-model="item.rubro_elegido"
+            @change="cambiarSeleccionSubItemsRubroElegido(item)"
+          >
+            <h3><b>{{item.rubro_nombre}}</b></h3>
+          </el-checkbox>
+          
+          <div 
+            v-for="(item1, index1) in arrayProveedoresMostrar" :key="index1"
+          >
+            <div 
+              v-if="item1.rubro.rubro_id == item.rubro_id" style="margin-bottom: 5px"
             >
-              Atrás
-            </el-button>
-            <el-button  
-              type="primary"    
-              class="btnSiguiente"
-              @click="active = 3"
-
-            >
-              Siguiente
-            </el-button>
+              
+              <!-- {{item1.proveedor.proveedor_nombre}}  -->
+              <el-checkbox 
+                v-model="item1.proveedor_elegido" 
+                size="large" 
+                border
+              >
+                {{item1.proveedor.proveedor_nombre}} - 
+                {{item1.proveedor.proveedor_email}}
+              </el-checkbox>
+            </div>
           </div>
+        </div>
+
+        <!-- {{arrayProveedoresMostrar}} -->
+
+        <!-- <hr>
+        <hr>
+        <hr> -->
+
+       
+
+        <div class="contenedorBtnSiguienteAtras">
+          <el-button  
+            type="info"    
+            class="btnAtras"
+            @click="active = 1"
+          >
+            Atrás
+          </el-button>
+          <el-button  
+            type="primary"    
+            class="btnSiguiente"
+            @click="active = 3"
+
+          >
+            Siguiente
+          </el-button>
+        </div>
       </div>
 
-      <!-- Promocion -->
+      <!-- Resumen -->
       <div v-show="active == 3" style="padding: 30px">
+        <h1 style="text-align: center; margin: 0px"><u><b>Resumen de presupuestación</b></u></h1>
+
+        <el-row :gutter="10" style="margin-top: 10px">
+          <el-col :span="12">
+            <h3><b>Productos</b></h3>
+            <!-- {{arrayProductosAComprar}} -->
+
+
+            <div v-for="(item, index) in arrayRubrosAComprar" :key="index">
+              <h4 style="margin-top: 10px">
+                <b>{{item.rubro_nombre}}</b>
+              </h4>
+
+              <div 
+                v-for="(item1, index1) in arrayProductosAComprar" :key="index1"
+              >
+                <ul>
+                  <div 
+                    v-if="item1.rubro_id == item.rubro_id" style="margin-bottom: 5px"
+                  >
+                    <li>{{item1.producto_nombre}}</li>
+                  </div>
+                </ul>
+              </div>
+            </div>
+
+          </el-col>
+          
+          <el-col :span="12">
+            <h3><b>Proveedores</b></h3>
+
+            <div v-for="(item, index) in arrayRubrosAComprar" :key="index">
+              <!-- <div><h3><b>{{item.rubro_nombre}}</b></h3></div> -->
+              
+                <h4 style="margin-top: 10px">
+                  <b>{{item.rubro_nombre}}</b>
+                </h4>
+              
+              <div 
+                v-for="(item1, index1) in arrayProveedoresMostrar" :key="index1"
+              >
+                <ul>
+                  <div 
+                    v-if="item1.rubro.rubro_id == item.rubro_id" style="margin-bottom: 5px"
+                  >
+                    
+                    <!-- {{item1.proveedor.proveedor_nombre}}  -->
+                    <div v-if="item1.proveedor_elegido == true">
+                      <li>
+                        {{item1.proveedor.proveedor_nombre}} - 
+                        {{item1.proveedor.proveedor_email}}
+                      </li>
+                    </div>
+                      
+                  </div>
+                </ul>
+              </div>
+            </div>
+          </el-col>
+
+        </el-row>
 
 
           <div class="contenedorBtnSiguienteAtras">
@@ -497,6 +599,7 @@
 
   <modal-buscar-producto-deposito
     ref="modalBuscarProductoDeposito"
+    @update:cantidadSacarDeposito="cantidadSacadaDeposito($event)"
   ></modal-buscar-producto-deposito>
 </template>
 
@@ -553,8 +656,21 @@
 
           // array para guardar los productos a comprar
           arrayProductosAComprar: [],
-        
 
+          // array para guardar los rubros a comprar
+          arrayRubrosAComprar: [],
+          b: 0,
+          arrayRubrosAComprarEnviar: [],
+
+          // array para mandar datos para buscar la cantidad de la prevision del producto
+          arrayDatosParaCantidadPresupestacion: [],
+          loadingCantidadAComprar: false,
+
+        // PASO 3
+        loadingProveedoresParaMail: false,
+        arrayProveedoresRecibidos: [],
+        arrayProveedoresMostrar: [],
+        checked2: null,
 
       }
     },
@@ -619,6 +735,20 @@
 
           // array para guardar los productos a comprar
           this.arrayProductosAComprar = []
+
+          // array para guardar los rubros a comprar
+          this.arrayRubrosAComprar = []
+          this.b = 0
+          this.arrayRubrosAComprarEnviar = []
+
+          // array para mandar datos para buscar la cantidad de la prevision del producto
+          this.arrayDatosParaCantidadPresupestacion = []
+
+        // PASO 3
+        this.arrayProveedoresRecibidos = []
+        this.arrayProveedoresMostrar = []
+        this.checked2 = null
+
 
         this.$refs.modal.abrir()
         this.obtenerPlanesSelect()
@@ -721,6 +851,15 @@
         })
       },
 
+      deshabilitarBtnSiguientePaso1(){
+        if (this.form.fechaaPresupuestar.length == 0
+        ) {
+          return true
+        } else {
+          return false
+        }
+      },
+
       cantidadMeses(){
         // console.log(this.form.mesesaPresupuestar[0].getMonth()+1);
         // console.log(this.form.mesesaPresupuestar[1].getMonth()+1);
@@ -736,15 +875,15 @@
 
         // console.log(this.form.mesesaPresupuestar[1].getMonth() - this.form.mesesaPresupuestar[0].getMonth());
 
-        let meses = this.form.fechaaPresupuestar[1].getMonth() - this.form.fechaaPresupuestar[0].getMonth() + (12 * (this.form.fechaaPresupuestar[1].getFullYear() - this.form.fechaaPresupuestar[0].getFullYear()))
+        let meses = this.form.fechaaPresupuestar[1].getMonth() - this.form.fechaaPresupuestar[0].getMonth() + (12 * (this.form.fechaaPresupuestar[1].getFullYear() - this.form.fechaaPresupuestar[0].getFullYear())) + 1
 
         this.form.mesesaPresupuestar = meses
 
         
         // declaro los valores para mostrar en el paso 2
-        let mostrarFechaIncio = this.form.fechaaPresupuestar[0].getDate() + "/" + this.form.fechaaPresupuestar[0].getMonth() + "/" + this.form.fechaaPresupuestar[0].getFullYear();
+        let mostrarFechaIncio = this.form.fechaaPresupuestar[0].getDate() + "/" + (this.form.fechaaPresupuestar[0].getMonth() + 1) + "/" + this.form.fechaaPresupuestar[0].getFullYear();
 
-        let mostrarFechaFin = this.form.fechaaPresupuestar[1].getDate() + "/" + this.form.fechaaPresupuestar[1].getMonth() + "/" + this.form.fechaaPresupuestar[1].getFullYear();
+        let mostrarFechaFin = this.form.fechaaPresupuestar[1].getDate() + "/" + (this.form.fechaaPresupuestar[1].getMonth() + 1) + "/" + this.form.fechaaPresupuestar[1].getFullYear();
 
         this.mostrarFechaIncioPresupuestacion = mostrarFechaIncio
         this.mostrarFechaFinPresupuestacion = mostrarFechaFin
@@ -762,12 +901,55 @@
       },
 
       seleccionarRubroProductoSeleccionado(){
+        this.arrayDatosParaCantidadPresupestacion = []
         this.productosNuevo.forEach((elemento) => {
           if (elemento.producto_id == this.productoSeleccionado) {
+            console.log("datos del producto seleccionado");
+            console.log(elemento);
             this.rubroProductoSeleccionado = elemento.rubro.rubro_nombre
             this.unidadProductoSeleccionado = elemento.producto_unidad
+
+            let fila = {
+              fechaDesdePresupuestacion: this.form.fechaaPresupuestar[0],
+              fechaHastaPresupuestacion: this.form.fechaaPresupuestar[1],
+              plan_id: this.form.nombreObra,
+              rubro_id: elemento.rubro_id,
+              producto_id: elemento.producto_id,
+              producto_nombre: elemento.producto_nombre
+            }
+
+            console.log("fila");
+            console.log(fila);
+
+            this.arrayDatosParaCantidadPresupestacion.push(fila)
+
+            this.buscarCantidadPrevision()
+
           }
         })
+
+        
+
+        // 
+      },
+
+      async buscarCantidadPrevision(){
+        this.loadingCantidadAComprar = true
+
+        let params = {
+          arrayDatosParaCantidadPresupestacion: JSON.stringify(this.arrayDatosParaCantidadPresupestacion)
+        }
+        
+        await this.axios.post( "/api/prevision/obtenerCantidad", params)
+          .then(response => {
+            console.log("respuesta");
+            console.log(response.data);
+
+            this.cantidadAComprarProductoSeleccionado = response.data.cantidadPresupuestar
+          
+          })
+        
+        this.loadingCantidadAComprar = false
       },
 
       agregarProductoAComprar(){
@@ -797,10 +979,44 @@
                 producto_activo: elemento.producto_activo,
                 rubro_id: elemento.rubro_id,
                 rubro_nombre: elemento.rubro.rubro_nombre,
-                cantidadAComprar: this.cantidadAComprarProductoSeleccionado
+                cantidadAComprar: this.cantidadAComprarProductoSeleccionado,
+                cantidadDeposito: null,
+                cantidadRealAComprar: null,
               }
 
               this.arrayProductosAComprar.push(fila)
+
+              let filaRubro = {
+                rubro_id: fila.rubro_id,
+                rubro_nombre: fila.rubro_nombre
+              }
+
+
+              // pregunto si el rubro ya esta agregado
+              this.b = 0
+              let yaExisteElemento = false
+              // if (this.arrayRubrosAComprar.length == 0) {
+              //   this.arrayRubrosAComprar.push(filaRubro);
+              // } else {
+                // this.arrayRubrosAComprar.forEach((elemento) => {
+                //   if (elemento.rubro_id == fila.rubro_id) {
+                //     this.b = 0
+                //   } else {
+                //     this.b = 1
+                //   }
+                // })
+
+                yaExisteElemento = this.arrayRubrosAComprar.filter(x => x.rubro_id == filaRubro.rubro_id)
+                console.log("yaExisteElemento");
+                console.log(yaExisteElemento);
+
+
+              // }
+
+              if (yaExisteElemento.length == 0) {
+                this.arrayRubrosAComprar.push(filaRubro);
+              }
+
 
               // limpio los campos
               this.productoSeleccionado = null
@@ -812,12 +1028,110 @@
             }
           })
         }
-
-        
       },
 
       eliminarItemArrayProductosAComprar(index){
         this.arrayProductosAComprar.splice(index, 1);
+        this.arrayRubrosAComprar.splice(index, 1);
+      },
+
+      cantidadSacadaDeposito(elemento){
+        console.log("elemento desde modal" );
+        console.log(elemento);
+
+        if (this.arrayProductosAComprar[elemento.indice].cantidadAComprar < elemento.cantidadUsar) {
+          ElMessage({
+            message: '¡Cantidad extraída de los depositos mayor que la cantidad a presupuestar, por favor seleccione otra cantidad!',
+            type: 'error',
+          })    
+        } else {
+          this.arrayProductosAComprar[elemento.indice].cantidadDeposito = elemento.cantidadUsar;
+
+          this.arrayProductosAComprar[elemento.indice].cantidadRealAComprar = this.arrayProductosAComprar[elemento.indice].cantidadAComprar - elemento.cantidadUsar
+        }
+      },
+
+      // deshabilitarBtnSiguientePaso2(){
+      //   this.arrayProductosAComprar.forEach((elemento) => {
+      //     if (elemento.cantidadRealAComprar == null) {
+      //       return true
+      //     } 
+      //   })
+      // },
+
+      activar2yTraerProveedoresxRubro(){
+        this.active = 2
+        this.obtenerProveedorxRubro()
+      },
+
+      async obtenerProveedorxRubro(){
+        this.arrayProveedoresMostrar = []
+        console.log("array prov al inicio");
+        console.log(this.arrayProveedoresMostrar);
+        this.loadingProveedoresParaMail = true
+
+        this.arrayRubrosAComprarEnviar = []
+
+        this.arrayRubrosAComprar.forEach((elemento) => {
+          let fila = {
+            rubro_id: elemento.rubro_id,
+            rubro_nombre: elemento.rubro_nombre,
+            rubro_elegido: null,
+          }
+          this.arrayRubrosAComprarEnviar.push(fila);
+        })
+
+        console.log("this.arrayRubrosAComprarEnviar");
+        console.log(this.arrayRubrosAComprarEnviar);
+
+
+        let params = {
+          arrRubrosAComprar: JSON.stringify(this.arrayRubrosAComprarEnviar)
+        }
+
+        await this.axios.post( "/api/proveedorxrubro/obtenerProveedorxRubro", params)
+          .then(response => {
+            console.log(response.data);
+            this.arrayProveedoresRecibidos = response.data
+           
+          })
+
+          this.arrayRubrosAComprarEnviar.forEach((elemento) => {
+            this.arrayProveedoresRecibidos.forEach((ele) => {
+              if (elemento.rubro_id == ele.rubro_id) {
+                let fila = {
+                  rubro: {
+                    rubro_id: elemento.rubro_id,
+                    rubro_nombre: elemento.rubro_nombre
+                  },
+                  proveedor: ele.proveedor,
+                  proveedor_elegido: null,
+                }
+
+                this.arrayProveedoresMostrar.push(fila);
+              }
+            })
+          })
+
+          console.log("this.arrayProveedoresMostrar");
+          console.log(this.arrayProveedoresMostrar);
+
+          this.loadingProveedoresParaMail = false
+        
+      },
+
+      cambiarSeleccionSubItemsRubroElegido(item){
+        console.log(item);
+
+        this.arrayProveedoresMostrar.forEach((elemento) => {
+          if (elemento.rubro.rubro_id == item.rubro_id) {
+            if (item.rubro_elegido == true) {
+              elemento.proveedor_elegido = true
+            } else {
+              elemento.proveedor_elegido = false
+            }
+          }
+        })
       }
 
     }

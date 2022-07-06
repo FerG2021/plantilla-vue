@@ -22,7 +22,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="date" label="Estado" >
+          <!-- <el-table-column prop="date" label="Estado" >
             <template #default="props">
               <span v-if="props.row.producto_activo == 1">
                 <el-tag class="ml-2" type="success">Activo</el-tag>
@@ -31,7 +31,7 @@
                 <el-tag class="ml-2" type="danger">Inactivo</el-tag>
               </span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
 
           <el-table-column prop="date" label="Stock" >
             <template #default="props">
@@ -48,12 +48,15 @@
                 align="center" 
                 text-align="center"
                 style="width: 100%"
+                @change="sumardatosSacarDeposito(scope.row.cantidadAUtilizar)"
               />
               
             </template>
           </el-table-column>
           
         </el-table>
+
+        <!-- {{cantidadTotalDeposito}} -->
 
         <el-row :gutter="10" style="margin-top: 15px">
           <el-col :span="3"></el-col>
@@ -67,6 +70,7 @@
             <el-button
               type="primary"
               style="width: 100%"
+              @click="enviarCantidadAUtilizarDeposito()"
             >
               Agregar
             </el-button>
@@ -87,17 +91,25 @@ export default {
   data() {
     return {
       id: null,
+      indice: null,
       datosDeposito: [],
       loading: false,
+      cantidadTotalDeposito: null,
+      datosSacarDeposito: null,
     };
   },
 
   methods: {
-    abrir(id) {
+    abrir(scope) {
       this.$refs.modal.abrir();
-      this.id = id;
+      this.id = scope.row.producto_id;
+      this.indice = scope.$index
       this.datosDeposito = []
-      console.log("id" + this.id);
+      this.cantidadTotalDeposito = null
+      this.datosSacarDeposito = null
+      console.log(scope);
+      console.log("id: " + scope.row.producto_id);
+      console.log("indice: " + scope.$index);
       this.getDatos();
     },
 
@@ -114,6 +126,19 @@ export default {
         })    
       this.loading = false
     },
+
+    sumardatosSacarDeposito(cantidadSacada){
+      this.cantidadTotalDeposito = this.cantidadTotalDeposito + cantidadSacada
+    },
+
+    enviarCantidadAUtilizarDeposito(){
+      this.datosSacarDeposito = {
+        indice: this.indice,
+        cantidadUsar: this.cantidadTotalDeposito
+      }
+      this.$emit("update:cantidadSacarDeposito", this.datosSacarDeposito);
+      this.cerrar()
+    }
   },
 };
 </script>

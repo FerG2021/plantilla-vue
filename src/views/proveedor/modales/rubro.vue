@@ -32,7 +32,7 @@
               {{datosProv.proveedor_cuit}}
             </el-descriptions-item>
 
-            <el-descriptions-item label="Email">
+            <!-- <el-descriptions-item label="Email">
               {{datosProv.proveedor_email}}
             </el-descriptions-item>
 
@@ -43,19 +43,20 @@
               <span v-else>
                 <el-tag class="ml-2" type="danger">NO</el-tag>
               </span>
-            </el-descriptions-item>        
+            </el-descriptions-item>         -->
         </el-descriptions>
 
         <!-- Agregar rubros al proveedor -->
-        <h4 style="margin-top:10px"><b>Rubros asociados al proveedor</b></h4>
+        <h4 style="margin-top:10px; margin-bottom: 10px"><b>Rubros asociados al proveedor</b></h4>
         <el-row :gutter="10" >
-          <el-col :span="20">
+          <el-col :span="24">
             <el-select 
               v-model="rubroProv" 
               class="m-2" 
               placeholder="Seleccione un rubro" 
               style="width: 100%" 
               v-loading="loadingSelect"
+              filterable
               @change="obtenerDatosDesdeSelect()"
             >
               <el-option
@@ -69,7 +70,7 @@
             <!-- {{rubroProv}} -->
           </el-col>
 
-          <el-col :span="4">
+          <!-- <el-col :span="4">
             <el-button
               type="primary"
               style="width: 100%"
@@ -77,18 +78,18 @@
             >
               Agregar
             </el-button>
-          </el-col>
+          </el-col> -->
         </el-row>
 
 
         <!-- Tabla para mostrar los rubros seleccionados al proveedor -->
-        <el-table :data="rubrosElegidos" stripe style="width: 100%">
+        <el-table :data="rubrosElegidos" stripe style="width: 100%; margin-top: 15px" v-loading="loadingRubrosElegidos">
           <el-table-column prop="nombre" label="Nombre">
             <template #default="props">
               {{props.row.rubro_nombre}}
             </template>
           </el-table-column>
-          <el-table-column prop="eliminar" label="Eliminar">
+          <el-table-column prop="eliminar" label="Eliminar" width="80px">
             <template #default="scope">
               <el-button
                 type="danger"
@@ -101,6 +102,26 @@
           </el-table-column>
         </el-table>
       </div>
+
+      <el-row style="margin-top: 15px">
+        <el-col :span="3"></el-col>
+        <el-col :span="3"></el-col>
+        <el-col :span="3"></el-col>
+        <el-col :span="3"></el-col>
+        <el-col :span="3"></el-col>
+        <el-col :span="3"></el-col>
+        <el-col :span="3"></el-col>
+        <el-col :span="3">
+          <el-button
+            type="primary"
+            style="width: 100%"
+            @click="onSubmit()"
+          >
+            Guardar
+          </el-button>
+        </el-col>
+
+      </el-row>
       
     </modal>
   </div>
@@ -122,6 +143,9 @@
         rubroProv: null,
         loadingSelect: false,
         loadingDetallesProv: true,
+        loadingRubrosElegidos: false,
+        arrayRubroProveedorEnviar: [],
+        datosRecibidos: [],
         form:{
           id: null,
           nombre: null,          
@@ -149,6 +173,10 @@
 
     created() {
       this.rubroObtenerTodosSelect()
+
+      this.obtenerDatos()
+      this.obtenerDatosProveedor()
+
     },
 
     methods:{
@@ -163,14 +191,38 @@
         this.rubrosElegidos = []
         this.datosProv = {}
         this.rubroProv = null
+        this.arrayRubroProveedorEnviar = []
+        this.datosRecibidos = []
 
         this.$refs.modal.abrir()
 
-        this.obtenerDatosProveedor()
+      // this.obtenerDatos()
+      this.obtenerDatosProveedor()
       },
 
       cerrar(){
         this.$refs.modal.cerrar()
+      },
+
+      async obtenerDatos(){
+        this.loadingRubrosElegidos = true
+        console.log("entra");
+        const respuestaApi =  await this.axios.get("/api/proveedorxrubro/obtenerDatos/" + this.id)
+
+        this.datosRecibidos = respuestaApi.data
+        console.log("array datos recibidos");
+        console.log(this.datosRecibidos);
+
+        this.datosRecibidos.forEach((elemento) => {
+          let fila = {
+            rubro_id: elemento.rubro.rubro_id,
+            rubro_nombre: elemento.rubro.rubro_nombre
+          }
+          
+          this.rubrosElegidos.push(fila)
+        })
+
+        this.loadingRubrosElegidos = false
       },
 
       async obtenerDatosProveedor(){
@@ -181,6 +233,8 @@
         console.log(this.datosProv);
 
         this.loadingDetallesProv = false;
+
+        this.obtenerDatos()
       },
 
       async rubroObtenerTodosSelect(){
@@ -204,10 +258,15 @@
         })
 
         console.log(this.rubroSeleccionado);
+
+        this.agregarRubroElegido()
       },
 
       agregarRubroElegido(){
         this.rubrosElegidos.push(this.rubroSeleccionado)
+        console.log("array rubros elegidos");
+        console.log(this.rubrosElegidos);
+        this.rubroProv = null
       },
 
       eliminarRubroElegido(index){
@@ -215,38 +274,32 @@
       },
 
       async onSubmit(){
-        let params = {
-          id: this.form.id,
-          nombre: this.form.nombre,          
-        }
+        if (this.rubrosElegidos.length != 0) {
+          // creo un nuevo array para agregar el id del proveedor
+          this.rubrosElegidos.forEach((elemento) => {
+            let fila = {
+              proveedor_id: this.id,
+              rubro_id: elemento.rubro_id
+            }
 
-        const respuestaApi = await this.axios.post("/api/rubro/crear", params)
-
-        if (respuestaApi.data.code == 200) {
-          ElMessage({
-            type: 'success',
-            message: '¡Rubro añadido con éxito!',
+            this.arrayRubroProveedorEnviar.push(fila)
           })
-          this.$emit('actualizarTabla')
-          this.cerrar()
-        } else {
-          if (respuestaApi.data.code == 400) {
-            let erroresMostrar = "// ";
-            let erorres = Object.values(respuestaApi.data.data)
 
-            erorres.forEach((elemento) => {                
-              erroresMostrar = erroresMostrar + " " + elemento + " //";
-            })
-
-            ElMessage({
-              type: 'error',
-              grouping: true,
-              message: erroresMostrar,
-              duration: 5000,
-            })
+          let params = {
+            arrProveedorRubro: JSON.stringify(this.arrayRubroProveedorEnviar)
           }
+
+          await this.axios.post( "/api/proveedorxrubro/crear", params)
+            .then(response => {
+              ElMessage({
+                  type: 'success',
+                  message: '¡Relación proveedor rubro exitosa!',
+              })
+              this.cerrar()
+            })
+        } else {
+          this.cerrar()
         }
-        
 
       },
 

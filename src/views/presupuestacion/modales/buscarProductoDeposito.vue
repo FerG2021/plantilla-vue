@@ -94,7 +94,7 @@ export default {
       indice: null,
       datosDeposito: [],
       loading: false,
-      cantidadTotalDeposito: null,
+      cantidadTotalDeposito: 0,
       datosSacarDeposito: null,
     };
   },
@@ -105,7 +105,7 @@ export default {
       this.id = scope.row.producto_id;
       this.indice = scope.$index
       this.datosDeposito = []
-      this.cantidadTotalDeposito = null
+      this.cantidadTotalDeposito = 0
       this.datosSacarDeposito = null
       console.log(scope);
       console.log("id: " + scope.row.producto_id);

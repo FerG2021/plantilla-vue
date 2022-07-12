@@ -83,6 +83,7 @@ export default {
   methods: {
     async login() {
       await this.$store.dispatch("login", this.form);
+      console.log("hace algo");
       return this.$router.replace("/");
     },
 

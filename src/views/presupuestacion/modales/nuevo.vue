@@ -90,6 +90,8 @@
               :disabled="deshabilitarSelectFechaaPresupuestar()"
             />
           </el-form-item>
+          <!-- {{form.fechaaPresupuestar}} -->
+
 
           <!-- Meses a presupuestar -->
           <el-form-item label="Meses a presup.">
@@ -102,21 +104,22 @@
           </el-form-item>
 
           <el-form-item label="Rubro a presup.">
-            <el-select 
-              v-model="filtroRubro" 
-              placeholder="Seleccionar por rubro"
-              filterable
-              clearable
-              style="width: 100%"
-              @change="limpiarFilaProductoSeleccionado()"
-            >
-              <el-option
-                v-for="item in rubrosSelect"
-                :key="item.rubro_id"
-                :label="item.rubro_nombre"
-                :value="item.rubro_id"
-              />
-            </el-select>
+              <el-select 
+                v-if="form.fechaaPresupuestar.length != 0"
+                v-model="filtroRubro" 
+                placeholder="Seleccionar por rubro"
+                filterable
+                clearable
+                style="width: 100%"
+                @change="limpiarFilaProductoSeleccionado()"
+              >
+                <el-option
+                  v-for="item in rubrosSelect"
+                  :key="item.rubro_id"
+                  :label="item.rubro_nombre"
+                  :value="item.rubro_id"
+                />
+              </el-select>
           </el-form-item>
 
 
@@ -281,6 +284,7 @@
 
 
         <!-- fila para seleccionar el producto -->
+        <!-- {{productosDesdePrevisionNuevo}} -->
         <el-row :gutter="10" style="margin-top: 15px">
           <el-col :span="10">
             <span>Producto</span>
@@ -292,8 +296,15 @@
               style="width: 100%"
               @change="seleccionarRubroProductoSeleccionado()"
             >
-              <el-option
+              <!-- <el-option
                 v-for="item in productosNuevo"
+                :key="item.producto_id"
+                :label="item.producto_nombre"
+                :value="item.producto_id"
+              /> -->
+
+              <el-option
+                v-for="item in productosDesdePrevisionNuevo"
                 :key="item.producto_id"
                 :label="item.producto_nombre"
                 :value="item.producto_id"
@@ -349,31 +360,31 @@
             </template>
           </el-table-column>
          
-          <el-table-column prop="codigo" label="Código">
+          <el-table-column prop="codigo" label="Código" width="120px">
             <template #default="props">
               <span>{{ props.row.producto_codigo }}</span>
             </template>
           </el-table-column>
          
-          <el-table-column prop="unidad" label="Unidad">
+          <el-table-column prop="unidad" label="Unidad" width="120px">
             <template #default="props">
               <span>{{ props.row.producto_unidad }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column prop="rubro" label="Rubro">
+          <el-table-column prop="rubro" label="Rubro" width="120px">
             <template #default="props">
               <span>{{ props.row.rubro_nombre }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column prop="cantidad" label="Cant. a comp.">
+          <el-table-column prop="cantidad" label="Cant. a comp." width="120px">
             <template #default="props">
               <span>{{ props.row.cantidadAComprar }}</span>
             </template>
           </el-table-column>
 
-          <el-table-column prop="cantidadDeposito" label="Cant. depósito">
+          <el-table-column prop="cantidadDeposito" label="Cant. depósito" width="120px">
             <!-- <template #default="scope">
               <el-input-number 
                 v-model="scope.row.cantidadDeposito" 
@@ -389,7 +400,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="cantidadDeposito" label="">
+          <el-table-column prop="cantidadDeposito" label="" width="70">
             <template #default="scope">
               <el-button
                 type="primary"
@@ -402,7 +413,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="cantidadReal" label="Cant. real a comprar">
+          <el-table-column prop="cantidadReal" label="Cant. real a comprar" width="120px">
             <template #default="scope">
               <el-input-number 
                 v-model="scope.row.cantidadRealAComprar" 
@@ -415,12 +426,12 @@
             </template>
           </el-table-column>
 
-          <el-table-column label="Eliminar" width="120">
+          <el-table-column label="Eliminar" width="120" align="center" text-align="center">
             <template #default="scope">
               <el-button                    
                 type="danger"                    
                 circle 
-                @click="eliminarItemArrayProductosAComprar(scope.$index)"
+                @click="eliminarItemArrayProductosAComprar(scope)"
               >
                 <span class="material-icons">delete</span>
               </el-button>
@@ -452,7 +463,7 @@
         </div>
       </div>
 
-      <!-- Fraccionable -->
+      <!-- Proveedores -->
       <div v-show="active == 2" style="padding: 30px" v-loading="loadingProveedoresParaMail">
 
         <div v-for="(item, index) in arrayRubrosAComprar" :key="index">
@@ -587,8 +598,7 @@
             <el-button  
               type="primary"    
               class="btnSiguiente"
-              @click="active = 4"
-
+              @click="onSubmit"
             >
               Guardar
             </el-button>
@@ -648,6 +658,12 @@
         productos: [],
         productosNuevo: [],
 
+          // nuevo array para el select tomando los datos de la tabla de prevision
+          arrAuxProductosDesdePrevision: [],
+          productosDesdePrevision: [], 
+          productosDesdePrevisionNuevo: [],
+          arrayBuscarProductosEnPrevision: [],
+
           // fila para seleccionar el producto y agregarlo a la lista
           productoSeleccionado: null,
           rubroProductoSeleccionado: null,
@@ -656,6 +672,8 @@
 
           // array para guardar los productos a comprar
           arrayProductosAComprar: [],
+          arrayProductosAComprarEnviar: [],
+
 
           // array para guardar los rubros a comprar
           arrayRubrosAComprar: [],
@@ -670,6 +688,8 @@
         loadingProveedoresParaMail: false,
         arrayProveedoresRecibidos: [],
         arrayProveedoresMostrar: [],
+        arrayProveedoresMostrarEnviar: [],
+
         checked2: null,
 
       }
@@ -682,11 +702,66 @@
     },
 
     watch: {
+      // filtroRubro(val) {
+      //   if(val == ''){
+      //     this.productosNuevo = this.productos
+      //   }else{
+      //     this.productosNuevo = this.buscarRubro(val)
+      //   }
+      // },
+
       filtroRubro(val) {
+        // this.productosDesdePrevisionNuevo = []
+        //   let arrayAux = []
+        //   let arrayAux1 = []
+
+
         if(val == ''){
-          this.productosNuevo = this.productos
+          this.productosDesdePrevisionNuevo = []
+
+          this.productosDesdePrevision.forEach((elemento) => {
+            let b = 0
+            this.productosDesdePrevisionNuevo.forEach((ele) => {
+              if (ele.producto_id == elemento.producto_id) {
+                b = 1
+              }
+            })
+
+            if (b == 0) {
+              this.productosDesdePrevisionNuevo.push(elemento)
+            }
+          })
+
+          // this.productosDesdePrevisionNuevo = this.productosDesdePrevision
         }else{
-          this.productosNuevo = this.buscarRubro(val)
+          // this.productosDesdePrevisionNuevo = []
+          // arrayAux = []
+          // arrayAux = this.buscarRubro(val)
+          // console.log("*****Array aux");
+          // console.log(arrayAux);
+
+          // arrayAux.forEach((elemento) => {
+          //   let b = 0
+          //   this.productosDesdePrevisionNuevo.forEach((ele) => {
+          //     if (ele.producto_id == elemento.producto_id) {
+          //       b = 1
+          //     }
+          //   })
+
+          //   if (b == 0) {
+          //     this.productosDesdePrevisionNuevo.push(elemento)
+          //   }
+          // })
+
+          // console.log("*****productosDesdePrevisionNuevo");
+          // console.log(this.productosDesdePrevisionNuevo);
+
+          
+          this.productosDesdePrevisionNuevo = this.buscarRubro(val)
+
+          console.log("*****productosDesdePrevisionNuevo");
+          console.log(this.productosDesdePrevisionNuevo);
+
         }
       },
       
@@ -727,6 +802,11 @@
         // this.productos = []
         // this.productosNuevo = []
 
+          // nuevo array para el select tomando los datos de la tabla de prevision
+          this.arrAuxProductosDesdePrevision = []
+          this.productosDesdePrevision = []
+          this.arrayBuscarProductosEnPrevision = []
+
           // fila para seleccionar el producto y agregarlo a la lista
           this.productoSeleccionado = null
           this.rubroProductoSeleccionado = null
@@ -735,6 +815,7 @@
 
           // array para guardar los productos a comprar
           this.arrayProductosAComprar = []
+          this.arrayProductosAComprarEnviar = []
 
           // array para guardar los rubros a comprar
           this.arrayRubrosAComprar = []
@@ -747,6 +828,8 @@
         // PASO 3
         this.arrayProveedoresRecibidos = []
         this.arrayProveedoresMostrar = []
+        this.arrayProveedoresMostrarEnviar = []
+
         this.checked2 = null
 
 
@@ -764,11 +847,30 @@
       },
 
       buscarRubro(keywords) {
-        return this.productos.filter(item =>{
-          if(item.rubro_id == keywords){
-            return item
+        // return this.productosDesdePrevision.filter(item =>{
+        //   if(item.rubro.rubro_id == keywords){
+        //     return item
+        //   }
+        // })
+
+
+
+        this.productosDesdePrevision.forEach((elemento) => {
+          let b = 0
+          if (elemento.rubro.rubro_id == keywords) {
+            this.productosDesdePrevisionNuevo.forEach((ele) => {
+              if (ele.producto_id == elemento.producto_id) {
+                b = 1
+              }
+            })
+
+            if (b == 0) {
+              this.productosDesdePrevisionNuevo.push(elemento)
+            }
           }
         })
+
+        return this.productosDesdePrevisionNuevo
       },
 
       async obtenerPlanesSelect(){
@@ -795,7 +897,8 @@
 
       async tomarValorPlan(id){
         this.loadingDesdeSelectPlan = true
-         await this.axios.get("/api/plan/obtenerDatos/" + id)
+        
+        await this.axios.get("/api/plan/obtenerDatos/" + id)
           .then(response => {
             this.datosPlanSeleccionado = response.data
             this.form.fDesde = this.datosPlanSeleccionado.plan_fdesde
@@ -813,11 +916,12 @@
               fecha = new Date(fecha.setMonth(fecha.getMonth() + 1))
 
             }
-
             console.log(this.datosPlanSeleccionado)
           })       
 
-          this.loadingDesdeSelectPlan = false
+        
+
+        this.loadingDesdeSelectPlan = false
 
       },
 
@@ -842,13 +946,130 @@
       },
 
       seleccionarRubroPresupuestar(){
-        this.rubrosSelect.forEach((elemento) => {
-          // console.log(this.rubrosSelect);
-          // console.log(this.form.rubroaPresupuestar);
-          if (elemento.rubro_id == this.filtroRubro) {
-            this.mostrarRubroPresupuestacion = elemento.rubro_nombre
+        if (this.filtroRubro != '') {
+          this.rubrosSelect.forEach((elemento) => {
+            // console.log(this.rubrosSelect);
+            // console.log(this.form.rubroaPresupuestar);
+            if (elemento.rubro_id == this.filtroRubro) {
+              this.mostrarRubroPresupuestacion = elemento.rubro_nombre
+            }
+          })
+        } else {
+          this.mostrarRubroPresupuestacion = null
+        }
+
+        // NUEVA FUNCION: a partir del rubro elegido ya cargo la tabla
+        console.log("this.productosDesdePrevisionNuevo en seleccionarRubroPresupuestar");
+        console.log(this.productosDesdePrevisionNuevo);
+
+        console.log("this.productosDesdePrevision en seleccionarRubroPresupuestar");
+        console.log(this.productosDesdePrevision);
+
+        // NUEVA FUNCION: al seleccionar un rubro cargo todos los productos pertenecientes al rubro en la tabla
+
+        // pregunto si el rubro que se quiere agregar ya fue agregado
+        let yaExisteElemento = false
+        yaExisteElemento = this.arrayRubrosAComprar.filter(x => x.rubro_id == this.filtroRubro)
+        console.log("yaExisteElemento");
+        console.log(yaExisteElemento);
+
+        if (yaExisteElemento.length == 0) {
+          let hayProductosParaRubro = 0
+
+          this.productosDesdePrevision.forEach((elemento) => {
+            let b = 0
+            if (elemento.rubro.rubro_id == this.filtroRubro) {
+              hayProductosParaRubro = 1
+              // pregunto si el producto ya fue agregado
+              this.arrayProductosAComprar.forEach((ele) => {
+                if (ele.producto_id == elemento.producto_id) {
+                  ele.cantidadAComprar = ele.cantidadAComprar + elemento.prevision_cantidad
+                  b = 1
+                }
+              })
+
+              console.log("elementoooooooooo");
+              console.log(elemento);
+
+              if (b == 0) {
+                let fila = {
+                  // producto_auto: elemento.producto_auto,
+                  producto_id: elemento.producto_id,
+                  producto_codigo: elemento.producto_codigo,
+                  producto_nombre: elemento.producto_nombre,
+                  producto_puc: elemento.producto_puc,
+                  producto_fpuc: elemento.producto_fpuc,
+                  producto_unidad: elemento.producto_unidad,
+                  producto_activo: elemento.producto.producto_activo,
+                  rubro_id: elemento.rubro.rubro_id,
+                  rubro_nombre: elemento.rubro.rubro_nombre,
+                  // cantidadAComprar: this.cantidadAComprarProductoSeleccionado,
+                  cantidadAComprar: elemento.prevision_cantidad,
+                  cantidadDeposito: null,
+                  cantidadRealAComprar: null,
+                }
+
+                this.arrayProductosAComprar.push(fila)
+
+                console.log("this.arrayProductosAComprar");
+                console.log(this.arrayProductosAComprar);
+
+                let filaRubro = {
+                  rubro_id: fila.rubro_id,
+                  rubro_nombre: fila.rubro_nombre
+                }
+
+
+                // pregunto si el rubro ya esta agregado
+                this.b = 0
+                let yaExisteElemento = false
+                // if (this.arrayRubrosAComprar.length == 0) {
+                //   this.arrayRubrosAComprar.push(filaRubro);
+                // } else {
+                  // this.arrayRubrosAComprar.forEach((elemento) => {
+                  //   if (elemento.rubro_id == fila.rubro_id) {
+                  //     this.b = 0
+                  //   } else {
+                  //     this.b = 1
+                  //   }
+                  // })
+
+                  yaExisteElemento = this.arrayRubrosAComprar.filter(x => x.rubro_id == filaRubro.rubro_id)
+                  console.log("yaExisteElemento");
+                  console.log(yaExisteElemento);
+
+
+                // }
+
+                if (yaExisteElemento.length == 0) {
+                  this.arrayRubrosAComprar.push(filaRubro);
+                }
+              }
+
+
+                
+
+            }
+          })
+
+          if (hayProductosParaRubro == 0) {
+            ElMessage({
+              message: '¡No hay productos para el rubro seleccionado en el periodo eledigo!',
+              type: 'error',
+            })   
           }
-        })
+
+
+
+        } else {
+          ElMessage({
+            message: '¡El rubro seleccionado ya fue agregado a la presupuestación!',
+            type: 'error',
+          })    
+        }
+
+        
+
       },
 
       deshabilitarBtnSiguientePaso1(){
@@ -860,7 +1081,7 @@
         }
       },
 
-      cantidadMeses(){
+      async cantidadMeses(){
         // console.log(this.form.mesesaPresupuestar[0].getMonth()+1);
         // console.log(this.form.mesesaPresupuestar[1].getMonth()+1);
         // console.log(this.form.mesesaPresupuestar[0].getMonth()+1);
@@ -888,9 +1109,49 @@
         this.mostrarFechaIncioPresupuestacion = mostrarFechaIncio
         this.mostrarFechaFinPresupuestacion = mostrarFechaFin
         this.mostrarCantidadMesesPresupuestacion = meses
+
+
+        // voy a buscar los productos de la prevision teniendo en cuenta el id de la obra y los meses a presupuestar
+        this.arrayBuscarProductosEnPrevision = []
+        
+        let fila = {
+          plan_id: this.form.nombreObra,
+          fechaDesdePresupuestacion: this.form.fechaaPresupuestar[0],
+          fechaHastaPresupuestacion: this.form.fechaaPresupuestar[1],
+        }
+
+
+        this.arrayBuscarProductosEnPrevision.push(fila)
+
+        console.log("this.arrayBuscarProductosEnPrevision");
+        console.log(this.arrayBuscarProductosEnPrevision);
+
+
+        let params = {
+          arrayBuscarProductosEnPrevision: JSON.stringify(this.arrayBuscarProductosEnPrevision)
+        }
+
+        console.log("params");
+        console.log(params);
+
+        this.productosDesdePrevision = []; 
+        this.productosDesdePrevisionNuevo = []
+        console.log("this.productosDesdePrevision");
+        console.log(this.productosDesdePrevision);
+
+
+        await this.axios.post("/api/vistaprevision/obtenerDatos", params)
+          .then(response => {
+            
+            this.productosDesdePrevision = this.productosDesdePrevisionNuevo = response.data;
+            console.log("this.productosDesdePrevision");
+            console.log(this.productosDesdePrevision);
+          })
+        
       },
 
       limpiarFilaProductoSeleccionado(){
+        this.productosDesdePrevisionNuevo = []
         this.productoSeleccionado = null
         this.rubroProductoSeleccionado = null
         this.unidadProductoSeleccionado = null
@@ -898,6 +1159,14 @@
 
         this.seleccionarRubroPresupuestar()
 
+      },
+
+      deshabilitarSelectRubroaPresupuestar(){
+        if (this.form.fechaaPresupuestar.length == 0) {
+          return true
+        } else {
+          return false
+        }
       },
 
       seleccionarRubroProductoSeleccionado(){
@@ -923,7 +1192,7 @@
 
             this.arrayDatosParaCantidadPresupestacion.push(fila)
 
-            this.buscarCantidadPrevision()
+            this.buscarCantidadPrevision(fila.producto_id)
 
           }
         })
@@ -933,21 +1202,28 @@
         // 
       },
 
-      async buscarCantidadPrevision(){
+      async buscarCantidadPrevision(producto_id){
         this.loadingCantidadAComprar = true
 
-        let params = {
-          arrayDatosParaCantidadPresupestacion: JSON.stringify(this.arrayDatosParaCantidadPresupestacion)
-        }
+        // let params = {
+        //   arrayDatosParaCantidadPresupestacion: JSON.stringify(this.arrayDatosParaCantidadPresupestacion)
+        // }
         
-        await this.axios.post( "/api/prevision/obtenerCantidad", params)
-          .then(response => {
-            console.log("respuesta");
-            console.log(response.data);
+        // await this.axios.post( "/api/prevision/obtenerCantidad", params)
+        //   .then(response => {
+        //     console.log("respuesta");
+        //     console.log(response.data);
 
-            this.cantidadAComprarProductoSeleccionado = response.data.cantidadPresupuestar
+        //     this.cantidadAComprarProductoSeleccionado = response.data.cantidadPresupuestar
           
-          })
+        //   })
+
+
+        this.productosDesdePrevisionNuevo.forEach((elemento) => {
+          if (elemento.producto_id == producto_id) {
+            this.cantidadAComprarProductoSeleccionado = elemento.prevision_cantidad
+          }
+        })
         
         this.loadingCantidadAComprar = false
       },
@@ -966,73 +1242,126 @@
             type: 'error',
           })    
         } else {
-          this.productosNuevo.forEach((elemento) => {
-            if (elemento.producto_id == this.productoSeleccionado) {
-              let fila = {
-                producto_auto: elemento.producto_auto,
-                producto_id: elemento.producto_id,
-                producto_codigo: elemento.producto_codigo,
-                producto_nombre: elemento.producto_nombre,
-                producto_puc: elemento.producto_puc,
-                producto_fpuc: elemento.producto_fpuc,
-                producto_unidad: elemento.producto_unidad,
-                producto_activo: elemento.producto_activo,
-                rubro_id: elemento.rubro_id,
-                rubro_nombre: elemento.rubro.rubro_nombre,
-                cantidadAComprar: this.cantidadAComprarProductoSeleccionado,
-                cantidadDeposito: null,
-                cantidadRealAComprar: null,
-              }
-
-              this.arrayProductosAComprar.push(fila)
-
-              let filaRubro = {
-                rubro_id: fila.rubro_id,
-                rubro_nombre: fila.rubro_nombre
-              }
-
-
-              // pregunto si el rubro ya esta agregado
-              this.b = 0
-              let yaExisteElemento = false
-              // if (this.arrayRubrosAComprar.length == 0) {
-              //   this.arrayRubrosAComprar.push(filaRubro);
-              // } else {
-                // this.arrayRubrosAComprar.forEach((elemento) => {
-                //   if (elemento.rubro_id == fila.rubro_id) {
-                //     this.b = 0
-                //   } else {
-                //     this.b = 1
-                //   }
-                // })
-
-                yaExisteElemento = this.arrayRubrosAComprar.filter(x => x.rubro_id == filaRubro.rubro_id)
-                console.log("yaExisteElemento");
-                console.log(yaExisteElemento);
-
-
-              // }
-
-              if (yaExisteElemento.length == 0) {
-                this.arrayRubrosAComprar.push(filaRubro);
-              }
-
-
-              // limpio los campos
-              this.productoSeleccionado = null
-              this.rubroProductoSeleccionado = null
-              this.unidadProductoSeleccionado = null
-              this.cantidadAComprarProductoSeleccionado = null
-
-              // console.log(this.arrayProductosAComprar);
-            }
+          // recorro el array de los productos a comprar para poder saber si el producto que quiero agregar ya ha sido agregado
+          let b = 0
+          this.arrayProductosAComprar.forEach((ele) => {
+            if (ele.producto_id == this.productoSeleccionado) {
+              b = 1              
+            } 
           })
+
+          // si el producto ya esta agregado muestro el mensaje 
+          if (b == 1) {
+            ElMessage({
+              message: '¡El producto seleccionado ya ha sido agregado!',
+              type: 'error',
+            }) 
+
+            // limpio los campos
+            this.productoSeleccionado = null
+            this.rubroProductoSeleccionado = null
+            this.unidadProductoSeleccionado = null
+            this.cantidadAComprarProductoSeleccionado = null
+          } else {
+            // si no ha sido agregado lo agrego
+            this.productosNuevo.forEach((elemento) => {
+              if (elemento.producto_id == this.productoSeleccionado) {
+                let fila = {
+                  producto_auto: elemento.producto_auto,
+                  producto_id: elemento.producto_id,
+                  producto_codigo: elemento.producto_codigo,
+                  producto_nombre: elemento.producto_nombre,
+                  producto_puc: elemento.producto_puc,
+                  producto_fpuc: elemento.producto_fpuc,
+                  producto_unidad: elemento.producto_unidad,
+                  producto_activo: elemento.producto_activo,
+                  rubro_id: elemento.rubro_id,
+                  rubro_nombre: elemento.rubro.rubro_nombre,
+                  cantidadAComprar: this.cantidadAComprarProductoSeleccionado,
+                  cantidadDeposito: null,
+                  cantidadRealAComprar: null,
+                }
+
+                this.arrayProductosAComprar.push(fila)
+
+                let filaRubro = {
+                  rubro_id: fila.rubro_id,
+                  rubro_nombre: fila.rubro_nombre
+                }
+
+
+                // pregunto si el rubro ya esta agregado
+                this.b = 0
+                let yaExisteElemento = false
+                // if (this.arrayRubrosAComprar.length == 0) {
+                //   this.arrayRubrosAComprar.push(filaRubro);
+                // } else {
+                  // this.arrayRubrosAComprar.forEach((elemento) => {
+                  //   if (elemento.rubro_id == fila.rubro_id) {
+                  //     this.b = 0
+                  //   } else {
+                  //     this.b = 1
+                  //   }
+                  // })
+
+                  yaExisteElemento = this.arrayRubrosAComprar.filter(x => x.rubro_id == filaRubro.rubro_id)
+                  console.log("yaExisteElemento");
+                  console.log(yaExisteElemento);
+
+
+                // }
+
+                if (yaExisteElemento.length == 0) {
+                  this.arrayRubrosAComprar.push(filaRubro);
+                }
+
+
+                // limpio los campos
+                this.productoSeleccionado = null
+                this.rubroProductoSeleccionado = null
+                this.unidadProductoSeleccionado = null
+                this.cantidadAComprarProductoSeleccionado = null
+
+                // console.log(this.arrayProductosAComprar);
+              }
+            })
+          }
+
+
+
+
+
+          
         }
       },
 
-      eliminarItemArrayProductosAComprar(index){
-        this.arrayProductosAComprar.splice(index, 1);
-        this.arrayRubrosAComprar.splice(index, 1);
+      eliminarItemArrayProductosAComprar(scope){
+        this.arrayProductosAComprar.splice(scope.$index, 1);
+        // this.arrayRubrosAComprar.splice(scope.$index, 1);
+
+        this.verificarRubroProductoSigueExistente(scope)
+      },
+
+      verificarRubroProductoSigueExistente(scope){
+        console.log("scope");
+        console.log(scope);
+
+        let index = 0
+        this.arrayRubrosAComprar.forEach((elemento) => {
+          let b = 0
+          this.arrayProductosAComprar.forEach((ele) => {
+            if (elemento.rubro_id == ele.rubro_id) {
+              b = 1
+            }
+          })
+
+          if (b == 0) {
+            this.arrayRubrosAComprar.splice(index, 1);
+          }
+
+          index++
+        })
+
       },
 
       cantidadSacadaDeposito(elemento){
@@ -1060,8 +1389,27 @@
       // },
 
       activar2yTraerProveedoresxRubro(){
-        this.active = 2
-        this.obtenerProveedorxRubro()
+        let b = 0
+        this.arrayProductosAComprar.forEach((elemento) => {
+          if (elemento.cantidadRealAComprar == 0 ||
+              elemento.cantidadRealAComprar == null ||
+              elemento.cantidadDeposito == null   
+          ) {
+            b = 1
+          }
+        })
+
+        if (b == 1) {
+          ElMessage({
+            message: '¡Se deben completar la cantidad real y de depósito de cada uno de los productos agregados!',
+            type: 'error',
+          }) 
+        } else {
+          this.active = 2
+          this.obtenerProveedorxRubro()
+        }
+
+        
       },
 
       async obtenerProveedorxRubro(){
@@ -1132,6 +1480,74 @@
             }
           }
         })
+      },
+
+      async onSubmit(){
+        let params = {
+          // presuestacion
+          presupuestacion_id: 0,
+          presupuestacion_plan_id: this.form.nombreObra,
+          presupuestacion_plan_nombre: this.datosPlanSeleccionado.plan_nombre,
+          presupuestacion_fecha_incio: this.form.fechaaPresupuestar[0],
+          presupuestacion_fecha_fin: this.form.fechaaPresupuestar[1],
+        }
+
+        // presupuestacion_productos
+        this.arrayProductosAComprar.forEach((elemento) => {
+          let fila = {
+            presupuestacion_producto_id: 0,
+            presupuestacion_id: 0,
+            presupuestacion_plan_id: this.form.nombreObra,
+            producto_id: elemento.producto_id,
+            producto_nombre: elemento.producto_nombre,
+            producto_rubro_id: elemento.rubro_id,
+            producto_rubro_nombre: elemento.rubro_nombre,
+            producto_cantidad_a_comprar: elemento.cantidadAComprar,
+            producto_cantidad_deposito: elemento.cantidadDeposito,
+            producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar
+          }
+
+          this.arrayProductosAComprarEnviar.push(fila)
+        })
+
+        params.arrayProductosAComprarEnviar = JSON.stringify(this.arrayProductosAComprarEnviar);
+
+
+        // presupuestacion_proveedores
+        this.arrayProveedoresMostrar.forEach((elemento) => {
+          let fila = {
+            presupuestacion_proveedor_id: 0,
+            presupuestacion_id: 0,
+            presupuestacion_plan_id: this.form.nombreObra,
+            proveedor_id: elemento.proveedor.proveedor_id,
+            proveedor_nombre: elemento.proveedor.proveedor_nombre,
+            proveedor_rubro_id: elemento.rubro.rubro_id,
+            proveedor_mail: elemento.proveedor.proveedor_email
+          }
+
+          this.arrayProveedoresMostrarEnviar.push(fila)
+        })
+
+        params.arrayProveedoresMostrarEnviar = JSON.stringify(this.arrayProveedoresMostrarEnviar);
+
+        params.arrayRubrosAComprar = JSON.stringify(this.arrayRubrosAComprarEnviar)
+
+        await this.axios.post("/api/presupuestacion/crear", params)
+          .then(response => {
+            console.log(response);
+
+            if (response.data) {
+              ElMessage({
+                type: 'success',
+                message: '¡Prespuestación realizada con éxito!',
+              })
+              this.$emit('actualizarTabla')
+              this.cerrar()
+            }
+          })
+
+
+
       }
 
     }

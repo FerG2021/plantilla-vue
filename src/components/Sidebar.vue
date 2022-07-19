@@ -57,6 +57,27 @@
         </el-tooltip>
       </div>
 
+      <!-- Borrador -->
+      <div>
+        <router-link class="button" to="/borrador" v-if="is_expanded">
+          <span class="material-icons">assignment_late</span>
+          <span class="text">Borrador</span>
+        </router-link>
+
+        <el-tooltip
+          class="box-item"
+          effect="dark"
+          content="Borrador"
+          placement="right-start"
+          v-if="!is_expanded"
+        >
+          <router-link class="button" to="/borrador" v-if="!is_expanded || is_expanded">
+            <span class="material-icons">assignment_late</span>
+            <span class="text">Borrador</span>
+          </router-link>
+        </el-tooltip>
+      </div>
+
       <!-- Planes -->
       <div>
         <router-link class="button" to="/plan" v-if="is_expanded">

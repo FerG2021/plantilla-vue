@@ -544,7 +544,17 @@
                   <div 
                     v-if="item1.rubro_id == item.rubro_id" style="margin-bottom: 5px"
                   >
-                    <li>{{item1.producto_nombre}}</li>
+                    <!-- <li>{{item1.producto_nombre}}</li> -->
+                    <li>
+                      <el-row>
+                        <el-col :span="18">
+                          {{ item1.producto_nombre }}
+                        </el-col> 
+                        <el-col :span="4">
+                          {{ item1.cantidadRealAComprar }}
+                        </el-col> 
+                      </el-row>
+                    </li>
                   </div>
                 </ul>
               </div>
@@ -572,10 +582,22 @@
                     
                     <!-- {{item1.proveedor.proveedor_nombre}}  -->
                     <div v-if="item1.proveedor_elegido == true">
-                      <li>
+                      <!-- <li>
                         {{item1.proveedor.proveedor_nombre}} - 
                         {{item1.proveedor.proveedor_email}}
+                      </li> -->
+
+                      <li>
+                        <el-row>
+                          <el-col :span="12">
+                            {{ item1.proveedor.proveedor_nombre }}
+                          </el-col> 
+                          <el-col :span="12">
+                            {{ item1.proveedor.proveedor_email }}
+                          </el-col> 
+                        </el-row>
                       </li>
+                      
                     </div>
                       
                   </div>
@@ -595,13 +617,38 @@
             >
               Atrás
             </el-button>
+            
+            <!-- <el-button  
+              type="success"    
+              class="btnBorrador"
+              @click="onSubmit"
+            >
+              Guardar como borrador
+            </el-button>
             <el-button  
               type="primary"    
               class="btnSiguiente"
               @click="onSubmit"
             >
               Guardar
-            </el-button>
+            </el-button> -->
+
+            <el-button-group class="btnSiguiente">
+              <el-button 
+                type="primary"
+                @click="onSubmitBorrador"
+                :loading="loadingOnSubmitBorrador"
+              >
+                Guardar como borrador
+              </el-button>
+              <el-button 
+                type="success"
+                @click="onSubmit"
+                :loading="loadingOnSubmit"
+              >
+                Guardar
+              </el-button>
+            </el-button-group>
           </div>
       </div>
     </modal>
@@ -691,6 +738,9 @@
         arrayProveedoresMostrarEnviar: [],
 
         checked2: null,
+
+        loadingOnSubmitBorrador: false,
+        loadingOnSubmit: false,
 
       }
     },
@@ -831,6 +881,9 @@
         this.arrayProveedoresMostrarEnviar = []
 
         this.checked2 = null
+
+        this.loadingOnSubmitBorrador = false
+        this.loadingOnSubmit = false
 
 
         this.$refs.modal.abrir()
@@ -1118,6 +1171,7 @@
           plan_id: this.form.nombreObra,
           fechaDesdePresupuestacion: this.form.fechaaPresupuestar[0],
           fechaHastaPresupuestacion: this.form.fechaaPresupuestar[1],
+          
         }
 
 
@@ -1483,6 +1537,7 @@
       },
 
       async onSubmit(){
+        this.loadingOnSubmit = true
         let params = {
           // presuestacion
           presupuestacion_id: 0,
@@ -1502,7 +1557,7 @@
             producto_nombre: elemento.producto_nombre,
             producto_rubro_id: elemento.rubro_id,
             producto_rubro_nombre: elemento.rubro_nombre,
-            producto_cantidad_a_comprar: elemento.cantidadAComprar,
+            producto_cantidad_a_comprar: elemento.cantidadRealAComprar,
             producto_cantidad_deposito: elemento.cantidadDeposito,
             producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar
           }
@@ -1545,10 +1600,70 @@
               this.cerrar()
             }
           })
+      },
 
+      async onSubmitBorrador(){
+        this.loadingOnSubmitBorrador = true
+        let params = {
+          // presuestacion
+          presupuestacion_id: 0,
+          presupuestacion_plan_id: this.form.nombreObra,
+          presupuestacion_plan_nombre: this.datosPlanSeleccionado.plan_nombre,
+          presupuestacion_fecha_incio: this.form.fechaaPresupuestar[0],
+          presupuestacion_fecha_fin: this.form.fechaaPresupuestar[1],
+        }
 
+        // presupuestacion_productos
+        this.arrayProductosAComprar.forEach((elemento) => {
+          let fila = {
+            presupuestacion_producto_id: 0,
+            presupuestacion_id: 0,
+            presupuestacion_plan_id: this.form.nombreObra,
+            producto_id: elemento.producto_id,
+            producto_nombre: elemento.producto_nombre,
+            producto_rubro_id: elemento.rubro_id,
+            producto_rubro_nombre: elemento.rubro_nombre,
+            producto_cantidad_a_comprar: elemento.cantidadRealAComprar,
+            producto_cantidad_deposito: elemento.cantidadDeposito,
+            producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar
+          }
+          this.arrayProductosAComprarEnviar.push(fila)
+        })
 
-      }
+        params.arrayProductosAComprarEnviar = JSON.stringify(this.arrayProductosAComprarEnviar);
+
+        // presupuestacion_proveedores
+        this.arrayProveedoresMostrar.forEach((elemento) => {
+          let fila = {
+            presupuestacion_proveedor_id: 0,
+            presupuestacion_id: 0,
+            presupuestacion_plan_id: this.form.nombreObra,
+            proveedor_id: elemento.proveedor.proveedor_id,
+            proveedor_nombre: elemento.proveedor.proveedor_nombre,
+            proveedor_rubro_id: elemento.rubro.rubro_id,
+            proveedor_mail: elemento.proveedor.proveedor_email
+          }
+          this.arrayProveedoresMostrarEnviar.push(fila)
+        })
+
+        params.arrayProveedoresMostrarEnviar = JSON.stringify(this.arrayProveedoresMostrarEnviar);
+
+        params.arrayRubrosAComprar = JSON.stringify(this.arrayRubrosAComprarEnviar)
+
+        await this.axios.post("/api/borradorpresupuestacion/crear", params)
+          .then(response => {
+            console.log(response);
+
+            if (response.data) {
+              ElMessage({
+                type: 'success',
+                message: '¡Borrador generador con éxito!',
+              })
+              // this.$emit('actualizarTabla')
+              this.cerrar()
+            }
+          })
+      },
 
     }
   }
@@ -1563,6 +1678,11 @@
 
   .btnSiguiente {
     margin: auto;
+    margin-right: 10px;
+  }
+
+  .btnBorrador {
+    margin: right;
     margin-right: 10px;
   }
 

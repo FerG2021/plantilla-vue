@@ -2,11 +2,11 @@
   <div>
     <modal
       ref="modal"
-      titulo="Detalle de la presupuestación"
+      titulo="Detalle del borrador"
       :impedir-close="impedirClose"
     >
       <el-descriptions
-          title="Información de la presupuestación"
+          title="Información del borrador"
           direction="vertical"
           :column="3"
           :size="size"
@@ -15,28 +15,28 @@
         >
           <div v-if="datos != null">
             <el-descriptions-item label="Nro. presupuestación">
-              {{ datos.presupuestacion_id }}
+              {{ datos.borrador_presupuestacion_id }}
             </el-descriptions-item>
             
             <el-descriptions-item label="Fecha de creación">
-              {{ formatearFecha(datos.presupuesto_fecha_creacion) }}  
+              {{ formatearFecha(datos.borrador_presupuesto_fecha_creacion) }}  
             </el-descriptions-item>
             
             <el-descriptions-item label="Plan">
-              {{ datos.presupuestacion_plan_nombre }}
+              {{ datos.borrador_presupuestacion_plan_nombre }}
             </el-descriptions-item>
             
             <el-descriptions-item label="Incio de presupuestación">
-              {{ formatearFecha(datos.presupuestacion_fecha_incio) }}  
+              {{ formatearFecha(datos.borrador_presupuestacion_fecha_incio) }}  
             </el-descriptions-item>
 
             <el-descriptions-item label="Fin de presupuestación">
-              {{ formatearFecha(datos.presupuestacion_fecha_fin) }}  
+              {{ formatearFecha(datos.borrador_presupuestacion_fecha_fin) }}  
             </el-descriptions-item>
 
-            <el-descriptions-item label="Rubro">
-              <el-tag class="ml-2" type="success">{{ datos.presupuestacion_rubro_nombre }}</el-tag>
-            </el-descriptions-item>
+            <!-- <el-descriptions-item label="Rubro">
+              <el-tag class="ml-2" type="success">{{ datos.borrador_presupuestacion_rubro_nombre }}</el-tag>
+            </el-descriptions-item> -->
           </div>
         </el-descriptions>
 
@@ -46,13 +46,13 @@
           <el-table :data="datosProductos" stripe style="width: 100%" v-loading="loadingProductos">
             <el-table-column prop="nombre" label="Nombre" >
               <template #default="props">
-                <span>{{ props.row.productoPresupuestacion.producto_nombre }}</span>
+                <span>{{ props.row.productoPresupuestacion.borrador_producto_nombre }}</span>
               </template>
             </el-table-column>
             
             <el-table-column prop="nombre" label="Rubro" >
               <template #default="props">
-                <span>{{ props.row.productoPresupuestacion.producto_rubro_nombre }}</span>
+                <span>{{ props.row.productoPresupuestacion.borrador_producto_rubro_nombre }}</span>
               </template>
             </el-table-column>
 
@@ -64,7 +64,7 @@
 
             <el-table-column prop="cantidad" label="Cantidad a comprar" align="right">
               <template #default="props">
-                <span>{{ props.row.productoPresupuestacion.producto_cantidad_a_comprar }}</span>
+                <span>{{ props.row.productoPresupuestacion.borrador_producto_cantidad_a_comprar }}</span>
               </template>
             </el-table-column>
           </el-table>
@@ -76,13 +76,19 @@
           <el-table :data="datosProveedores" stripe style="width: 100%" v-loading="loadingProductos">
             <el-table-column prop="nombre" label="Nombre" >
               <template #default="props">
-                <span>{{ props.row.proveedor_nombre }}</span>
+                <span>{{ props.row.proveedor.borrador_proveedor_nombre }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="nombre" label="Rubro" >
+              <template #default="props">
+                <span>{{ props.row.rubro.rubro_nombre }}</span>
               </template>
             </el-table-column>
             
             <el-table-column prop="nombre" label="Mail" >
               <template #default="props">
-                <span>{{ props.row.proveedor_mail }}</span>
+                <span>{{ props.row.proveedor.borrador_proveedor_mail }}</span>
               </template>
             </el-table-column>
             
@@ -133,7 +139,7 @@ export default {
 
     async getDatos() {
       await this.axios
-        .get("/api/presupuestacion/obtenerDatos/" + this.id)
+        .get("/api/borradorpresupuestacion/obtenerDatos/" + this.id)
         .then((response) => {
           const respuestaApi = response;
           console.log(respuestaApi);

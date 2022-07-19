@@ -158,6 +158,25 @@
 
           <!-- Ver datos -->
           <el-table-column 
+            label="Editar" 
+            prop="editar" 
+            header-align="right" 
+            align="right"
+            width="90px"
+          >
+              <template #default="props">
+                <el-button 
+                  type="primary" 
+                  circle
+                  @click="$refs.modalModificar.abrir(props.row.proveedor_id)"
+                >
+                  <span class="material-icons">edit</span>
+                </el-button>
+              </template>
+          </el-table-column>
+
+          <!-- Ver datos -->
+          <el-table-column 
             label="Detalle" 
             prop="detalle" 
             header-align="right" 

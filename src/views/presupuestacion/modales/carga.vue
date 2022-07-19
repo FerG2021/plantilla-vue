@@ -2,111 +2,50 @@
   <div>
     <modal
       ref="modal"
-      titulo="Carga de los productos según proveedor"
+      titulo="Proveedores"
       :impedir-close="impedirClose"
       width="70%"
     >
-      <!-- <el-descriptions
-        title="Información de la presupuestación"
-        direction="vertical"
-        :column="4"
-        :size="size"
-        border
-        v-loading="loading"
-      >
-        <div v-if="datos != null">
-          <el-descriptions-item label="Nro. presupuestación">
-            {{ datos.presupuestacion_id }}
-          </el-descriptions-item>
-
-          <el-descriptions-item label="Fecha de creación">
-            {{ formatearFecha(datos.presupuesto_fecha_creacion) }}
-          </el-descriptions-item>
-
-          <el-descriptions-item label="Plan">
-            {{ datos.presupuestacion_plan_nombre }}
-          </el-descriptions-item>
-
-          <el-descriptions-item label="Incio de presupuestación">
-            {{ formatearFecha(datos.presupuestacion_fecha_incio) }}
-          </el-descriptions-item>
-
-          <el-descriptions-item label="Fin de presupuestación">
-            {{ formatearFecha(datos.presupuestacion_fecha_fin) }}
-          </el-descriptions-item>
-
-          <el-descriptions-item label="Rubro">
-            <el-tag class="ml-2" type="success">{{
-              datos.presupuestacion_rubro_nombre
-            }}</el-tag>
-          </el-descriptions-item>
-        </div>
-      </el-descriptions>
-
-      <h3 style="margin-top: 15px"><b>Productos</b></h3>
-      <div v-if="datosProductos">
-        <el-table
-          :data="datosProductos"
-          stripe
-          style="width: 100%"
-          v-loading="loadingProductos"
-        >
-          <el-table-column prop="nombre" label="Nombre">
-            <template #default="props">
-              <span>{{ props.row.producto_nombre }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="nombre" label="Rubro">
-            <template #default="props">
-              <span>{{ props.row.producto_rubro_nombre }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="cantidad" label="Cantidad a comprar">
-            <template #default="props">
-              <span>{{ props.row.producto_cantidad_real_a_comprar }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-
-      <h3 style="margin-top: 15px"><b>Proveedores</b></h3>
-      <div v-if="datosProveedores">
-        <el-table
-          :data="datosProveedores"
-          stripe
-          style="width: 100%"
-          v-loading="loadingProductos"
-        >
-          <el-table-column prop="nombre" label="Nombre">
-            <template #default="props">
-              <span>{{ props.row.proveedor_nombre }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column prop="nombre" label="Mail">
-            <template #default="props">
-              <span>{{ props.row.proveedor_mail }}</span>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div> -->
-
-
       <div v-loading="loadingInformacionParaCarga">
-        <div v-for="item in datosProveedores" :key="item.index">
+        <el-table :data="datosProveedores" stripe style="width: 100%">
+          <el-table-column prop="ID" label="ID">
+            <template #default="props">
+              {{props.row.proveedor_id}}            
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="Nombre" label="Nombre">
+            <template #default="props">
+              {{props.row.proveedor_nombre}}            
+            </template>
+          </el-table-column>  
+
+          <el-table-column 
+            label="Cargar" 
+            prop="cargar" 
+            header-align="right" 
+            align="right"
+            width="90px"
+          >
+            <template #default="props">
+              <el-button 
+                type="primary" 
+                circle
+                @click="$refs.modalCargaPorProveedor.abrir(props.row.proveedor_id, props.row.presupuestacion_id)"
+              >
+                <span class="material-icons">inventory_2</span>
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        
+
+        <!-- <div v-for="item in datosProveedores" :key="item.index">
           <el-row style="margin-top: 10px">
             <h3><b>Proveedor: {{item.proveedor_nombre}}</b></h3>
           </el-row>
           <div v-for="itemProducto in arrayInformacionParaCarga" :key="itemProducto.index">
             <div v-if="item.proveedor_id == itemProducto.proveedor_id">
-              <!-- <el-row>
-                <el-col>{{itemProducto.producto_nombre}}</el-col>
-                <el-col></el-col>
-                <el-col></el-col>
-              </el-row> -->
-
               <el-descriptions
                 style="margin-top: 10px"
                 direction="vertical"
@@ -114,10 +53,6 @@
                 :size="size"
                 border
               >
-                <!-- <el-descriptions-item label="Proveedor">
-                  {{itemProducto.proveedor_id}} - {{itemProducto.proveedor_nombre}}
-                </el-descriptions-item> -->
-
                 <el-descriptions-item label="Producto">
                   {{itemProducto.producto_nombre}}
                 </el-descriptions-item>
@@ -144,56 +79,28 @@
                   </el-input-number>
                 </el-descriptions-item>
               </el-descriptions>
-
-
-
-              
-
-
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
-
-      <!-- <el-button
-        type="primary"
-        @click="guardar()"
-      >
-        Guardar
-      </el-button> -->
-
-      <div class="contenedorBtnSiguienteAtras">
-        <!-- <el-button  
-          type="info"    
-          class="btnAtras"
-          @click="active = 0"
-        >
-          Atrás
-        </el-button> -->
-
-        <el-button  
-          type="primary"    
-          class="btnSiguiente"
-          @click="onSubmit()"
-
-        >
-          Guardar
-        </el-button>
-      </div>
-
       <!-- {{arrayInformacionParaCarga}} -->
-
-
-
     </modal>
   </div>
+
+  <modal-carga-por-proveedor
+    ref="modalCargaPorProveedor"
+  ></modal-carga-por-proveedor>
 </template>
 
 <script>
 import { ElMessage, ElMessageBox } from "element-plus";
+import ModalCargaPorProveedor from './cargaPorProveedor.vue'
 
 name: "nuevoProducto";
 export default {
+  components: {
+    ModalCargaPorProveedor
+  },
   data() {
     return {
       id: null,
@@ -208,11 +115,15 @@ export default {
       arrayInformacionParaCarga: [],
       arrayProductosDesdeAPI: [],
 
+      // nueva seccion
+      active: 0,
+
     };
   },
 
   methods: {
     abrir(id) {
+      this.active = 0
       this.loading = true;
       this.loadingProductos = true;
       this.loadingProveedores = true;
@@ -241,7 +152,8 @@ export default {
         .get("/api/presupuestacion/obtenerDatos/" + this.id)
         .then((response) => {
           const respuestaApi = response;
-          console.log(respuestaApi);
+          console.log("respuestaApi de getDatos");
+          console.log(respuestaApi.data);
 
           if (respuestaApi != null) {
             this.datos = respuestaApi.data;
@@ -252,6 +164,8 @@ export default {
             this.loadingProductos = false;
 
             this.datosProveedores = respuestaApi.data.proveedores;
+            console.log("this.datosProveedores");
+            console.log(this.datosProveedores);
             this.loadingProveedores = false;
 
             
@@ -285,8 +199,10 @@ export default {
             producto_id: ele.producto_id,
             producto_nombre: ele.producto_nombre,
             producto_cantidad_real_a_comprar: ele.producto_cantidad_real_a_comprar,
-            producto_cantidad_proveedor: 0,
-            producto_precio: 0,
+            precio_png: 0,
+            iva: 0,
+            precio_pu: 0,
+            precio_pp: 0,
             ya_agregado: 0,
           }
 
@@ -301,37 +217,56 @@ export default {
     async completarArrayConProductosAgregados(){
         await this.axios.get("/api/presupuestacionproductosproveedor/obtenerTodos/" + this.id)
           .then(response =>{
-            console.log("completarArrayConProductosAgregados");
-            console.log(response.data);
+            // console.log("completarArrayConProductosAgregados");
+            // console.log(response.data);
             this.arrayProductosDesdeAPI = response.data
         })  
         
         
         this.arrayInformacionParaCarga.forEach((elemento) => {
           this.arrayProductosDesdeAPI.forEach((ele) => {
-            console.log("*******************");
-            console.log("presupuestacion_producto_id de Info carga");
-            console.log(elemento.presupuestacion_producto_id );
-            console.log("presupuestacion_producto_id de API");
-            console.log(ele.presupuestacion_producto_id);
-            console.log("*******************");
+            // console.log("*******************");
+            // console.log("presupuestacion_producto_id de Info carga");
+            // console.log(elemento.presupuestacion_producto_id );
+            // console.log("presupuestacion_producto_id de API");
+            // console.log(ele.presupuestacion_producto_id);
+            // console.log("*******************");
 
             if (elemento.presupuestacion_producto_id == ele.presupuestacion_producto_id && elemento.proveedor_id == ele.proveedor_id) {
               elemento.presupuestacion_productos_proveedores_id = ele.presupuestacion_productos_proveedores_id,
+              
               elemento.presupuestacion_productos_proveedores_id = ele.presupuestacion_productos_proveedores_id
+              
               elemento.presupuestacion_producto_id = ele.presupuestacion_producto_id
+              
               elemento.presupuestacion_id = ele.presupuestacion_id
+              
               elemento.presupuestacion_plan_id = ele.presupuestacion_plan_id
+              
               elemento.presupuestacion_rubro_id = ele.presupuestacion_rubro_id
+              
               elemento.presupuestacion_rubro_nombre = ele.presupuestacion_rubro_nombre
+              
               elemento.proveedor_id = ele.proveedor_id
+              
               elemento.proveedor_nombre = ele.proveedor_nombre
+              
               elemento.proveedor_mail = ele.proveedor_mail
+              
               elemento.producto_id = ele.producto_id
+              
               elemento.producto_nombre = ele.producto_nombre
+              
               elemento.producto_cantidad_real_a_comprar = ele.producto_cantidad_a_comprar
-              elemento.producto_cantidad_proveedor = ele.producto_cantidad_proveedor
-              elemento.producto_precio = ele.producto_precio_proveedor
+              
+              elemento.precio_png = ele.precio_png
+              
+              elemento.iva = ele.iva
+
+              elemento.precio_pu = ele.precio_pu
+
+              elemento.precio_pp = ele.precio_pp
+              
               elemento.ya_agregado = 1
             }
           })

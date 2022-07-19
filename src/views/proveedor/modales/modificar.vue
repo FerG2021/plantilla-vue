@@ -6,13 +6,11 @@
         v-loading="loading"
         :rules="formRules"
       >
-        <!-- Nombre -->
-        <el-form-item label="Nombre" prop="nombre">
-          <el-input v-model="form.nombre"></el-input>
+        <el-form-item label="Mail" prop="nombre">
+          <el-input v-model="form.mail"></el-input>
         </el-form-item>
 
-        <!-- Precio -->
-        <el-form-item label="Precio" prop="precio">
+        <!-- <el-form-item label="Precio" prop="precio">
           <el-input-number 
             v-model="form.precio" 
             :step="0.1" 
@@ -21,7 +19,6 @@
           ></el-input-number>
         </el-form-item>
 
-        <!-- Stock -->
         <el-form-item label="Stock" prop="stock">
           <el-input-number 
             v-model="form.stock"
@@ -30,7 +27,6 @@
           ></el-input-number>
         </el-form-item>
 
-        <!-- Unidad de medida -->
         <el-form-item label="Unid. de medida" prop="unidadMedida">
           <el-select v-model="form.unidadMedida" class="m-2" placeholder="Seleccione una unidad de medida" style="width: 100%" @change="cambiarValorIDUnMed()">
             <el-option
@@ -42,9 +38,7 @@
             />
           </el-select>
         </el-form-item>
-        <!-- {{form.idUnidadMedida}} -->
 
-        <!-- Categoria -->
         <el-form-item label="Categoria" prop="categoria">
           <el-select v-model="form.categoria" class="m-2" placeholder="Seleccione una categoria" style="width: 100%" @change="cambiarValorIDCategoria()">
             <el-option
@@ -55,8 +49,7 @@
               style="width: 100%"
             />
           </el-select>
-        </el-form-item>
-        <!-- {{form.idCategoria}} -->
+        </el-form-item> -->
 
 
       </el-form>
@@ -64,7 +57,6 @@
         <el-button 
           type="primary" 
           @click="onSubmit()"
-          :disabled="deshabilitarBtnGuardar()"
         >Guardar</el-button>
       </template>
     </modal>
@@ -87,6 +79,7 @@
           idUnidadMedida: null,
           categoria: null,
           idCategoria: null,
+          mail: null,
         },
         id: null,
         articulos: [],
@@ -135,10 +128,10 @@
         this.form.precio = null
         this.form.stock = null
         this.form.unidadMedida = null
-        this.form.idUnidadMedida = null,
-        this.form.categoria = null,
-        this.form.idCategoria = null,
-        
+        this.form.idUnidadMedida = null
+        this.form.categoria = null
+        this.form.idCategoria = null
+        this.form.mail = null
 
         this.getDatos()
         this.categoriaObtenerTodosSelect()
@@ -151,20 +144,22 @@
       },
 
       async getDatos(){
-        await this.axios.get(this.base_url + "/articulo/obtenerDatos/" + this.id)
+        await this.axios.get("/api/proveedor/obtenerDatos/" + this.id)
           .then(response =>{
             const respuestaApi = response.data
             console.log(respuestaApi)
            
             if (respuestaApi != null) {
-              this.form.nombre = respuestaApi.descripcion
-              this.form.precio = respuestaApi.precio
-              this.form.stock = respuestaApi.stock
-              this.form.unidadMedida = respuestaApi.unidadMedida.nombre
-              this.form.idUnidadMedida = respuestaApi.unidadMedida.id
-              this.form.categoria = respuestaApi.categoria.nombre
-              this.form.idCategoria = respuestaApi.categoria.id
+              console.log(respuestaApi);
+              // this.form.nombre = respuestaApi.descripcion
+              // this.form.precio = respuestaApi.precio
+              // this.form.stock = respuestaApi.stock
+              // this.form.unidadMedida = respuestaApi.unidadMedida.nombre
+              // this.form.idUnidadMedida = respuestaApi.unidadMedida.id
+              // this.form.categoria = respuestaApi.categoria.nombre
+              // this.form.idCategoria = respuestaApi.categoria.id
 
+              this.form.mail = respuestaApi.proveedor_email
               this.loading = false
             } else{
               this.cerrar()
@@ -199,18 +194,19 @@
       onSubmit(){
         let params = {
             id: this.id,
-            descripcion: this.form.nombre,
-            precio: this.form.precio,
-            stock: this.form.stock,
-            idCategoria: this.form.idCategoria,
-            idUnidadMedida: this.form.idUnidadMedida,
+            // descripcion: this.form.nombre,
+            // precio: this.form.precio,
+            // stock: this.form.stock,
+            // idCategoria: this.form.idCategoria,
+            // idUnidadMedida: this.form.idUnidadMedida,
+            mail: this.form.mail
         }
 
-        this.axios.put(this.base_url + "/articulo/actualizar/" + this.id, params)
+        this.axios.post("/api/proveedor/actualizar", params)
             .then(response => {
                 ElMessage({
                     type: 'success',
-                    message: '¡Producto modificado con éxito!',
+                    message: '¡Mail modificado con éxito!',
                 })
                 this.$emit('actualizarTabla')
                 this.cerrar()

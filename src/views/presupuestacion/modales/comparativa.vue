@@ -14,17 +14,10 @@
           style="width: 100%;"
           show-summary
           @sort-change="sortChange()"
-          @header-click="headerClick" 
           @cell-click="cellClick"
           :summary-method="getSummaries"
           ref="tablaComparativa"
-          :cell-style="yellowBg"
-          :header-cell-style="{
-            'background-color': '#f7f7f7',
-            color: '#6e6e6e',
-            'font-weight': '400',
-          }"
-          :cell-class-name="classChecker"
+          :cell-style="classChecker"
         >
           <el-table-column
             label="Productos"
@@ -63,6 +56,24 @@
               :column-key="item.proveedor_id"
               :cell-style="colorColumnas(index)"
             > 
+            <template #header>
+               <el-checkbox 
+                v-model="item.proveedorSeleccionado" 
+                :label="item.proveedor_nombre" 
+                size="large" 
+                @change="cambiarProveedorSeleccionado(item)"
+              />
+               <el-button
+                type="primary"
+                size="small"
+                circle
+                style="margin-left: 5px"
+                @click="$refs.modalCargaPorProveedorMostrar.abrir(item.proveedor_id, item.presupuestacion_id)"
+               >
+                <!-- <span class="material-icons">info</span> -->
+                i
+               </el-button>
+            </template>
             <!-- <el-checkbox v-model="a" label="" size="large" /> -->
               <!-- <el-table-column type="selection" width="55" /> -->
               <el-table-column 
@@ -70,16 +81,18 @@
                 align="center"
                 @select="seleccionar(param)"
                 style="background-color: red;"
+                prop="pp"
               >
                 <template #default="scope" >
                   <el-checkbox 
-                    v-model="item.productos[scope.$index].productoSeleccionado" label="" 
+                    v-model="item.productos[scope.$index].productoSeleccionado" 
+                    :label="parseFloat(item.productos[scope.$index].precio_pp)" 
                     size="large" 
                     @change="cambiarSeleccionProductoSegmentado(scope, item.productos[scope.$index])"
-                    style="margin-left: 20px"
+                    style="margin-left: 20px; color: black"
                   />
                   
-                  {{ parseFloat(item.productos[scope.$index].precio_pp) }}
+                  <!-- {{ parseFloat(item.productos[scope.$index].precio_pp) }} -->
                   <!-- <el-button
                     type="primary"
                     @click="agregar(scope, item.productos[scope.$index] ,item.productos[index].precio_pp, index)"
@@ -93,6 +106,7 @@
                     type="primary"
                     @click="agregar(scope, item.productos[scope.$index] ,item.productos[index].precio_pp, index)"
                   >
+
                     agregar
                   </el-button>
                 </template> -->
@@ -104,16 +118,46 @@
             </el-table-column>
           </el-table-column>
         </el-table>
+
+        <el-table 
+          :data="arrayTotal"
+          style="margin-top: 15px"
+        >
+          <el-table-column label=""></el-table-column>
+          <el-table-column label="Total homogéneo" align="center">
+            <template #default="props">
+              {{props.row.totalHomogeneo}}
+            </template>
+          </el-table-column>
+          <el-table-column label=""></el-table-column>
+          <el-table-column v-for="(item, index) in arrayPrecioPPProveedores" :key="index" label="Total por proveedor" align="center">
+             <!-- <template #default="scope"> -->
+              {{item.totalPP}}
+             <!-- </template> -->
+          </el-table-column>
+
+        </el-table>
       </div>
     </modal>
   </div>
+
+  <modal-carga-por-proveedor-mostrar
+    ref="modalCargaPorProveedorMostrar"
+  ></modal-carga-por-proveedor-mostrar>
+
+
 </template>
 
 <script>
 import { ElMessage, ElMessageBox } from "element-plus";
+import modalCargaPorProveedorMostrar from './cargaPorProveedorMostrar.vue'
+
 
 name: "nuevoProducto";
 export default {
+  components: {
+    modalCargaPorProveedorMostrar
+  },
   data() {
     return {
       id: null,
@@ -122,6 +166,12 @@ export default {
       arrAux: [],
       mostrarTabla: false,
       loadingTabla: false,
+      arrayTodosProductos: [],
+      arrayProductos: [],
+      longitudProveedores: null,
+      totalHomogeneo: 0,
+      arrayTotal: [],
+      arrayPrecioPPProveedores: []
     };
   },
 
@@ -133,8 +183,14 @@ export default {
       this.datosAPI = [];
       this.arraySoloProductos = [];
       this.arrAux = [];
+      this.arrayTodosProductos = []
+      this.arrayProductos = []
+      this.longitudProveedores = null;
+
       this.mostrarTabla = false;
       this.loadingTabla = true;
+      this.totalHomogeneo = 0
+      this.arrayPrecioPPProveedores = []
 
 
       this.$refs.modal.abrir();
@@ -212,9 +268,31 @@ export default {
           // this.datosAPI = response.data;
           console.log("this.datosAPI");
           console.log(this.datosAPI);
+
+          this.longitudProveedores = this.datosAPI.length
+          console.log("this.longitudProveedores");
+          console.log(this.longitudProveedores);
+
+          this.datosAPI.forEach((elemento) => {
+            let fila = {
+              presupuestacion_id: elemento.presupuestacion_id ,
+              presupuestacion_plan_id: elemento.presupuestacion_plan_id ,
+              proveedor_id: elemento.proveedor_id ,
+              proveedor_nombre: elemento.proveedor_nombre ,
+              proveedor_rubro_id: elemento.proveedor_rubro_id ,
+              totalPP: 0 ,
+            }
+
+            this.arrayPrecioPPProveedores.push(fila)
+          })
+
+
+
+          
         });
 
       this.crearArraySoloProductos();
+      this.calcularTotalHomogeneo()
     },
 
     crearArraySoloProductos() {
@@ -232,12 +310,86 @@ export default {
         this.arraySoloProductos.push(fila);
       });
 
-      console.log("this.arraySoloProductos");
-      console.log(this.arraySoloProductos);
+      // console.log("this.arraySoloProductos");
+      // console.log(this.arraySoloProductos);
 
       this.loadingTabla = false;
 
+      this.crearArrayTodosProductos();
 
+    },
+
+    crearArrayTodosProductos(){
+      this.datosAPI.forEach((elemento) => {
+        // console.log("elemento todos los productos");
+        // console.log(elemento.productos);
+        this.arrayTodosProductos.push(elemento.productos)
+      })
+
+      console.log("this.arraySoloProductos");
+      console.log(this.arraySoloProductos);
+
+      console.log("this.arrayTodosProductos");
+      console.log(this.arrayTodosProductos);
+
+
+      this.arrayTodosProductos.forEach((elemento) => {
+        // console.log("elemento array");
+        // console.log(elemento);
+        elemento.forEach((ele) => {
+          // console.log("ele array");
+          // console.log(ele);
+          this.arrayProductos.push(ele)
+        })
+      })
+
+      console.log("this.arrayProductos");
+      console.log(this.arrayProductos);
+
+      let yaExisteElemento;
+
+      this.arraySoloProductos.forEach((elemento) => {
+        yaExisteElemento = this.arrayProductos.filter(
+          (x) => x.producto_id == elemento.producto_id
+        );
+        // console.log("yaExisteElemento");
+        // console.log(yaExisteElemento);
+
+        let min = yaExisteElemento[0].precio_pp
+        let producto;
+
+        // console.log("min");
+        // console.log(min);
+
+        
+        yaExisteElemento.forEach((ele) => {
+          // console.log("ele");
+          // console.log(ele);
+
+          if (ele.precio_pp <= min) {
+            min = ele.precio_pp
+            producto = ele
+          }
+        })
+
+        // console.log("producto");
+        // console.log(producto);
+
+        this.datosAPI.forEach((elemento) => {
+          elemento.productos.forEach((ele) => {
+            // console.log("ele para datos API");
+            // console.log(ele);
+
+            if (ele.producto_id == producto.producto_id && ele.proveedor_id == producto.proveedor_id) {
+              ele.productoSeleccionado = true
+            }
+          })
+        })
+      })
+      
+
+
+      
     },
 
     agregar(scope, item, precio, index) {
@@ -267,8 +419,8 @@ export default {
     headerClick(param){
       console.log(param)
 
-      console.log("nombre");
-      console.log(param.label);
+      // console.log("nombre");
+      // console.log(param.label);
       
       let estadoProveedor = false
       let estadoOtrosProveedores = false
@@ -305,15 +457,93 @@ export default {
           })
 
         }
-
         console.log("indexSeleccionado");
         console.log(indexSeleccionado);
+      })
+    },
 
+    cambiarProveedorSeleccionado(item){
+      console.log("this.datosAPI");
+      console.log(this.datosAPI);
+
+      console.log("item");
+      console.log(item);
+
+
+      
+      let estadoProveedor = false
+      let estadoOtrosProveedores = false
+      let indexSeleccionado
+
+      this.datosAPI.forEach((elemento, index) => {
+        if (item.proveedor_id == elemento.proveedor_id) {
+          if (item.proveedorSeleccionado == true) {
+            elemento.proveedorSeleccionado = true
+
+            elemento.productos.forEach((ele) => {
+              ele.productoSeleccionado = true
+            })
+          } else {
+            elemento.proveedorSeleccionado = false
+
+            elemento.productos.forEach((ele) => {
+              ele.productoSeleccionado = false
+            })
+          }
+        } else {
+          if (item.proveedorSeleccionado == true) {
+            elemento.proveedorSeleccionado = false
+            elemento.productos.forEach((ele) => {
+              ele.productoSeleccionado = false
+            })
+          }
+        }
       })
 
+      this.calcularTotalHomogeneo()
+    },
 
+    calcularTotalHomogeneo(){
+      this.totalHomogeneo = 0
 
+      this.datosAPI.forEach((elemento) => {
+        elemento.productos.forEach((ele) => {
+          if (ele.productoSeleccionado == true) {
+            this.totalHomogeneo = this.totalHomogeneo + ele.precio_pp
+          }
+        })
+      })
 
+      this.arrayTotal = []
+
+      let fila = {
+        aux: null,
+        totalHomogeneo: this.totalHomogeneo.toFixed(2),
+        aux2: null
+      }
+
+      this.arrayTotal.push(fila)
+
+      this.calcularPrecioPPProveedores()
+    },
+
+    calcularPrecioPPProveedores(){
+      let precioPPParcial = 0
+      this.datosAPI.forEach((elemento) => {
+        elemento.productos.forEach((ele) => {
+          if (ele.productoSeleccionado == true) {
+            precioPPParcial = precioPPParcial + ele.precio_pp
+          }
+        })
+
+        this.arrayPrecioPPProveedores.forEach((elementoArrayProv) => {
+          if (elementoArrayProv.proveedor_id == elemento.proveedor_id) {
+            elementoArrayProv.totalPP = precioPPParcial.toFixed(2)
+          }
+        })
+
+        precioPPParcial = 0
+      })
     },
 
     cellClick(param){
@@ -367,7 +597,53 @@ export default {
           }
         })
       })
+
+      this.calcularTotalHomogeneo()
       
+    },
+
+    headerCellStyle({ row, column, rowIndex, columnIndex }){
+      if (column.label == "PP") {
+        // console.log("row de cell style");
+        // console.log(row);
+
+        // console.log("column de cell style");
+        // console.log(column);
+
+        // console.log("rowIndex de cell style");
+        // console.log(rowIndex);
+
+        // console.log("columnIndex de cell style");
+        // console.log(columnIndex);
+
+
+        if (columnIndex == 2) {
+          return {'background' : 'lightblue'}
+        }
+
+        if (columnIndex == 3) {
+          return {'background' : 'lightgreen'}
+        }
+        
+      }
+
+      if (column.label == "Proveedores") {
+        console.log("row de cell style en Proveedores");
+        console.log(row);
+
+        console.log("column de cell style en Proveedores");
+        console.log(column);
+
+        console.log("rowIndex de cell style en Proveedores");
+        console.log(rowIndex);
+
+        console.log("columnIndex de cell style en Proveedores");
+        console.log(columnIndex);
+
+        return {'background' : 'blue'}
+      }
+
+
     },
 
     filterTag(value, row) {
@@ -409,30 +685,66 @@ export default {
     },
 
     classChecker({ row, column, rowIndex, columnIndex }) {
-
-     console.log("row");
-     console.log(row);
-
-      console.log("column");
-      console.log(column);
-
-      console.log("rowIndex");
+      console.log("*******************************");
+      console.log("rowIndex de classchecker");
       console.log(rowIndex);
 
-      console.log("columnIndex");
+      console.log("columnIndex de classchecker");
       console.log(columnIndex);
 
+      console.log("column de classchecker");
+      console.log(column);
 
-
-      const val = row[column.property];
-      console.log("val");
-      console.log(val);
-
-      if (val > 0) {
-        return "blueClass";
-      } else {
-        return "redClass";
+      if (columnIndex == 3) {
+        return {'background': '#4b86b4' , 'color': 'black'}
       }
+
+      if (columnIndex == 4) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 5) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 6) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      
+      if (columnIndex == 7) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 8) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 9) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 10) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      
+      if (columnIndex == 11) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 12) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 13) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 14) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
     }
     
   },

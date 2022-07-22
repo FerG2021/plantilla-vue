@@ -385,16 +385,6 @@
           </el-table-column>
 
           <el-table-column prop="cantidadDeposito" label="Cant. depósito" width="120px">
-            <!-- <template #default="scope">
-              <el-input-number 
-                v-model="scope.row.cantidadDeposito" 
-                :max="scope.row.cantidadAComprar"
-                :controls="false" 
-                align="center" 
-                text-align="center"
-                style="width: 100%"
-              />
-            </template> -->
             <template #default="props">
               <span>{{ props.row.cantidadDeposito }}</span>
             </template>
@@ -419,6 +409,17 @@
                 v-model="scope.row.cantidadRealAComprar" 
                 :max="scope.row.cantidadAComprar"
                 :controls="false" 
+                align="center" 
+                text-align="center"
+                style="width: 100%"
+              />
+            </template>
+          </el-table-column>
+
+          <el-table-column prop="observaciones" label="Observaciones" width="120px">
+            <template #default="scope">
+              <el-input 
+                v-model="scope.row.observaciones" 
                 align="center" 
                 text-align="center"
                 style="width: 100%"
@@ -1060,6 +1061,7 @@
                   cantidadAComprar: elemento.prevision_cantidad,
                   cantidadDeposito: null,
                   cantidadRealAComprar: null,
+                  observaciones: null,
                 }
 
                 this.arrayProductosAComprar.push(fila)
@@ -1334,6 +1336,7 @@
                   cantidadAComprar: this.cantidadAComprarProductoSeleccionado,
                   cantidadDeposito: null,
                   cantidadRealAComprar: null,
+                  observaciones: null,
                 }
 
                 this.arrayProductosAComprar.push(fila)
@@ -1559,7 +1562,8 @@
             producto_rubro_nombre: elemento.rubro_nombre,
             producto_cantidad_a_comprar: elemento.cantidadRealAComprar,
             producto_cantidad_deposito: elemento.cantidadDeposito,
-            producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar
+            producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar,
+            producto_observaciones: elemento.observaciones
           }
 
           this.arrayProductosAComprarEnviar.push(fila)
@@ -1625,7 +1629,8 @@
             producto_rubro_nombre: elemento.rubro_nombre,
             producto_cantidad_a_comprar: elemento.cantidadRealAComprar,
             producto_cantidad_deposito: elemento.cantidadDeposito,
-            producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar
+            producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar,
+            producto_observaciones: elemento.observaciones
           }
           this.arrayProductosAComprarEnviar.push(fila)
         })

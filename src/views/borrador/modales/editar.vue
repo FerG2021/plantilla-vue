@@ -452,6 +452,21 @@
           </el-table-column>
 
           <el-table-column
+            prop="cantidadReal"
+            label="Observaciones"
+            width="120px"
+          >
+            <template #default="scope">
+              <el-input
+                v-model="scope.row.observaciones"
+                align="center"
+                text-align="center"
+                style="width: 100%"
+              />
+            </template>
+          </el-table-column>
+
+          <el-table-column
             label="Eliminar"
             width="120"
             align="center"
@@ -974,6 +989,7 @@ export default {
                 cantidadAComprar: elemento.productoPresupuestacion.borrador_producto_cantidad_a_comprar,
                 cantidadDeposito: elemento.productoPresupuestacion.borrador_producto_cantidad_deposito,
                 cantidadRealAComprar: elemento.productoPresupuestacion.borrador_producto_cantidad_real_a_comprar,
+                observaciones: elemento.productoPresupuestacion.borrador_producto_observaciones,
                 accion: "B",
               }
 
@@ -998,6 +1014,7 @@ export default {
                 cantidadAComprar: elemento.cantidadAComprar,
                 cantidadDeposito: elemento.cantidadDeposito,
                 cantidadRealAComprar: elemento.cantidadRealAComprar,
+                observaciones: elemento.observaciones,
                 accion: "A",
               }
 

@@ -2,9 +2,9 @@
   <div>
     <modal
       ref="modal"
-      titulo="Nueva presupuestación"
+      titulo="Borrador presupuestación"
       :impedir-close="impedirClose"
-      width="80%"
+      width="95%"
     >
       <el-steps
         :active="active"
@@ -371,7 +371,7 @@
         </el-row>
 
         <!-- tabla para mostrar los productos a comprar -->
-        <el-table :data="arrayProductosAComprar" stripe style="width: 100%">
+        <el-table :data="arrayProductosAComprar" stripe style="width: 100%" gutter="5">
           <el-table-column prop="nombre" label="Nombre">
             <template #default="props">
               <span>{{ props.row.producto_nombre }}</span>
@@ -1751,6 +1751,7 @@ export default {
           producto_cantidad_a_comprar: elemento.cantidadRealAComprar,
           producto_cantidad_deposito: elemento.cantidadDeposito,
           producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar,
+          producto_observaciones: elemento.observaciones,
           accion: "A",
         };
 
@@ -1900,6 +1901,7 @@ export default {
           producto_cantidad_a_comprar: elemento.cantidadRealAComprar,
           producto_cantidad_deposito: elemento.cantidadDeposito,
           producto_cantidad_real_a_comprar: elemento.cantidadRealAComprar,
+          producto_observaciones: elemento.observaciones,
           accion: "A"
         };
 

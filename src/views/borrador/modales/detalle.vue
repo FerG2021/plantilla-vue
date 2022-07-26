@@ -4,6 +4,7 @@
       ref="modal"
       titulo="Detalle del borrador"
       :impedir-close="impedirClose"
+      width="80%"
     >
       <el-descriptions
           title="Información del borrador"
@@ -62,9 +63,15 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="cantidad" label="Cantidad a comprar" align="right">
+            <el-table-column prop="cantidad" label="Cantidad a comprar">
               <template #default="props">
                 <span>{{ props.row.productoPresupuestacion.borrador_producto_cantidad_a_comprar }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="cantidad" label="Observaciones">
+              <template #default="props">
+                <span>{{ props.row.productoPresupuestacion.borrador_producto_observaciones }}</span>
               </template>
             </el-table-column>
           </el-table>

@@ -229,25 +229,16 @@
 
         </div>
 
-        <div class="contenedorBtnSiguienteAtras">
-          <!-- <el-button  
-            type="info"    
-            class="btnAtras"
-            @click="active = 0"
-          >
-            Atrás
-          </el-button> -->
-
+        <!-- <div class="contenedorBtnSiguienteAtras">
           <el-button  
             type="primary"    
             class="btnSiguiente"
             @click="onSubmit()"
             :loading="loadingBtnGuardar"
-
           >
             Guardar
           </el-button>
-        </div>
+        </div> -->
 
       </div>
     </modal>
@@ -359,7 +350,7 @@ export default {
             console.log(this.datosGenerales);
 
             this.datosProductos = respuestaApi.data.productos;
-            console.log("this.datosProductos");
+            console.log("this.datosProductos");  
             console.log(this.datosProductos);
 
             let proveedoresApi = []

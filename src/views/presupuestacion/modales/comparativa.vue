@@ -4,7 +4,7 @@
       ref="modal"
       titulo="Comparativa de productos"
       :impedir-close="impedirClose"
-      width="95%"
+      width="99%"
     >
       <div v-loading="loadingTabla">
         <el-table
@@ -23,14 +23,20 @@
             label="Productos"
             align="center"
             style="background-color: red"
+            fixed
           >
-            <el-table-column prop="date" label="ID" align="center">
+            <!-- <el-table-column prop="date" label="ID" align="center" fixed>
               <template #default="props">
                 {{ props.row.producto_id }}
               </template>
-            </el-table-column>
+            </el-table-column> -->
 
-            <el-table-column prop="date" label="Nombre" align="center">
+            <el-table-column 
+              prop="date" 
+              label="Nombre" 
+              align="center"
+              fixed
+            >
               <template #default="props">
                 {{ props.row.producto_nombre }}
               </template>
@@ -38,8 +44,9 @@
 
             <el-table-column
               prop="date"
-              label="Cantidad a comprar"
+              label="Cant. a comprar"
               align="center"
+              fixed
             >
               <template #default="props">
                 {{ props.row.cantidad_a_comprar }}
@@ -74,8 +81,41 @@
                 i
                </el-button>
             </template>
-            <!-- <el-checkbox v-model="a" label="" size="large" /> -->
-              <!-- <el-table-column type="selection" width="55" /> -->
+              
+              <!-- PNG -->
+              <el-table-column 
+                label="PNG" 
+                align="center"
+                prop="png"
+              >
+                <template #default="scope" >
+                  $ {{parseFloat(item.productos[scope.$index].precio_png)}}
+                </template>
+              </el-table-column>
+
+              <!-- IVA -->
+              <el-table-column 
+                label="IVA" 
+                align="center"
+                prop="iva"
+              >
+                <template #default="scope" >
+                  {{parseFloat(item.productos[scope.$index].iva)}} %
+                </template>
+              </el-table-column>
+
+              <!-- PU -->
+              <el-table-column 
+                label="PU" 
+                align="center"
+                prop="pU"
+              >
+                <template #default="scope" >
+                  $ {{parseFloat(item.productos[scope.$index].precio_pu)}}
+                </template>
+              </el-table-column>
+              
+              <!-- PP -->
               <el-table-column 
                 label="PP" 
                 align="center"
@@ -86,35 +126,15 @@
                 <template #default="scope" >
                   <el-checkbox 
                     v-model="item.productos[scope.$index].productoSeleccionado" 
-                    :label="parseFloat(item.productos[scope.$index].precio_pp)" 
+                    :label=" '$' + parseFloat(item.productos[scope.$index].precio_pp)" 
                     size="large" 
                     @change="cambiarSeleccionProductoSegmentado(scope, item.productos[scope.$index])"
                     style="margin-left: 20px; color: black"
                   />
-                  
-                  <!-- {{ parseFloat(item.productos[scope.$index].precio_pp) }} -->
-                  <!-- <el-button
-                    type="primary"
-                    @click="agregar(scope, item.productos[scope.$index] ,item.productos[index].precio_pp, index)"
-                  >
-                    agregar
-                  </el-button> -->
                 </template>
-
-                <!-- <template #default="scope">
-                  <el-button
-                    type="primary"
-                    @click="agregar(scope, item.productos[scope.$index] ,item.productos[index].precio_pp, index)"
-                  >
-
-                    agregar
-                  </el-button>
-                </template> -->
-
-                <!-- <template #default="props">
-                    {{props.row.proveedor_monto_total_homogeneo}}
-                  </template> -->
               </el-table-column>
+
+
             </el-table-column>
           </el-table-column>
         </el-table>
@@ -123,20 +143,22 @@
           :data="arrayTotal"
           style="margin-top: 15px"
         >
-          <el-table-column label=""></el-table-column>
-          <el-table-column label="Total homogéneo" align="center">
+          <!-- <el-table-column label=""></el-table-column> -->
+          <el-table-column label="Total homog." align="center">
             <template #default="props">
               {{props.row.totalHomogeneo}}
             </template>
           </el-table-column>
           <el-table-column label=""></el-table-column>
-          <el-table-column v-for="(item, index) in arrayPrecioPPProveedores" :key="index" label="Total por proveedor" align="center">
+          <el-table-column v-for="(item, index) in arrayPrecioPPProveedores" :key="index" :label="item.titulo" align="center">
              <!-- <template #default="scope"> -->
               {{item.totalPP}}
              <!-- </template> -->
           </el-table-column>
 
         </el-table>
+
+        <!-- {{arrayPrecioPPProveedores}} -->
       </div>
     </modal>
   </div>
@@ -274,12 +296,19 @@ export default {
           console.log(this.longitudProveedores);
 
           this.datosAPI.forEach((elemento) => {
+            let fila1 = {}
+            this.arrayPrecioPPProveedores.push(fila1)
+            this.arrayPrecioPPProveedores.push(fila1)
+            this.arrayPrecioPPProveedores.push(fila1)
+
+
             let fila = {
               presupuestacion_id: elemento.presupuestacion_id ,
               presupuestacion_plan_id: elemento.presupuestacion_plan_id ,
               proveedor_id: elemento.proveedor_id ,
               proveedor_nombre: elemento.proveedor_nombre ,
               proveedor_rubro_id: elemento.proveedor_rubro_id ,
+              titulo: "Total x prov.",
               totalPP: 0 ,
             }
 
@@ -287,6 +316,8 @@ export default {
           })
 
 
+          console.log("this.arrayPrecioPPProveedores");
+          console.log(this.arrayPrecioPPProveedores);
 
           
         });
@@ -556,7 +587,7 @@ export default {
       const  tabla = this.$refs.tablaComparativa
       const { columns, data } = param;
       const sums = [];
-      let ind = 3
+      let ind = 5
 
       this.datosAPI.forEach((elemento, index) => {
         if (index == 0) {
@@ -566,7 +597,10 @@ export default {
         elemento.productos.forEach((ele) => {
           sums[ind] = sums[ind] + ele.precio_pp
         })
-        ind++
+
+        sums[ind] = '$' + sums[ind].toFixed(2)
+
+        ind=ind+4
       })
 
       console.log("sums");
@@ -694,26 +728,28 @@ export default {
 
       console.log("column de classchecker");
       console.log(column);
-
+      
+      // Proveedor1
+      if (columnIndex == 2) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
       if (columnIndex == 3) {
         return {'background': '#4b86b4' , 'color': 'black'}
       }
-
       if (columnIndex == 4) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+      if (columnIndex == 5) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      // P2
+      if (columnIndex == 6) {
         return {'background': '#adcbe3' , 'color': 'black'}
       }
 
-      if (columnIndex == 5) {
-        return {'background': '#e7eff6' , 'color': 'black'}
-      }
-
-      if (columnIndex == 6) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      
       if (columnIndex == 7) {
-        return {'background': '#4b86b4' , 'color': 'black'}
+        return {'background': '#adcbe3' , 'color': 'black'}
       }
 
       if (columnIndex == 8) {
@@ -721,27 +757,177 @@ export default {
       }
 
       if (columnIndex == 9) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      // P3
+      if (columnIndex == 10) {
         return {'background': '#e7eff6' , 'color': 'black'}
       }
 
-      if (columnIndex == 10) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      
       if (columnIndex == 11) {
-        return {'background': '#4b86b4' , 'color': 'black'}
+        return {'background': '#e7eff6' , 'color': 'black'}
       }
 
       if (columnIndex == 12) {
-        return {'background': '#adcbe3' , 'color': 'black'}
+        return {'background': '#e7eff6' , 'color': 'black'}
       }
 
       if (columnIndex == 13) {
         return {'background': '#e7eff6' , 'color': 'black'}
       }
 
+      // P4
       if (columnIndex == 14) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 15) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+      
+      if (columnIndex == 16) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 17) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+
+      //P5
+      if (columnIndex == 18) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 19) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 20) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 21) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+      
+      //P5
+      if (columnIndex == 22) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 23) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 24) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 25) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      // P6
+      if (columnIndex == 26) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 27) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 28) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 29) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      // P7
+      if (columnIndex == 30) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 31) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 32) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 33) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      //P8
+      if (columnIndex == 34) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 35) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 36) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 37) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      // P9
+      if (columnIndex == 38) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 39) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 40) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 41) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      // P10
+      if (columnIndex == 42) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 43) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 44) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 45) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      // P11
+      if (columnIndex == 46) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 47) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 48) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 49) {
         return {'background': '#63ace5' , 'color': 'black'}
       }
 

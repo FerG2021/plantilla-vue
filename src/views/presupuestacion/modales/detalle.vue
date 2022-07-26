@@ -4,6 +4,7 @@
       ref="modal"
       titulo="Detalle de la presupuestación"
       :impedir-close="impedirClose"
+      width="90%"
     >
       <el-descriptions
           title="Información de la presupuestación"
@@ -62,9 +63,17 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="cantidad" label="Cantidad a comprar" align="right">
+            <el-table-column prop="cantidad" label="Cantidad a comprar" >
               <template #default="props">
                 <span>{{ props.row.productoPresupuestacion.producto_cantidad_a_comprar }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="observaciones" label="Observaciones">
+              <template #default="props">
+                <span v-if="props.row.productoPresupuestacion.producto_observaciones">{{ props.row.productoPresupuestacion.producto_observaciones }}</span>
+                <span v-else>-</span>
+
               </template>
             </el-table-column>
           </el-table>

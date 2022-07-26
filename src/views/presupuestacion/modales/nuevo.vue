@@ -4,7 +4,7 @@
       ref="modal" 
       titulo="Nueva presupuestación" 
       :impedir-close="impedirClose"
-      width="80%"
+      width="90%"
     >
       <el-steps
         :active="active"

@@ -28,7 +28,7 @@
           </el-descriptions>
         </div>
       </div>
-
+      <!-- {{arrayInformacionParaCarga}} -->
       <div v-loading="loadingArrayInformacionParaCarga">
         <div v-if="arrayInformacionParaCarga" style="margin-top: 20px">
           <el-table 
@@ -58,6 +58,28 @@
             <el-table-column prop="cantidad" label="Cantidad">
               <template #default="props">
                 {{props.row.producto_cantidad_a_comprar}}            
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="factor" label="Factor" align="center">
+              <template #default="props">
+                <el-input-number
+                  v-model="props.row.factor"
+                  :controls="false"
+                  style="width: 100%"
+                  @change="cambiarCantidadProveedor(props)"
+                ></el-input-number>            
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="cantidadProveedor" label="Cant. prov." align="center">
+              <template #default="props">
+                <el-input-number
+                  v-model="props.row.cantidad_proveedor"
+                  :controls="false"
+                  style="width: 100%"
+                  disabled
+                ></el-input-number>            
               </template>
             </el-table-column>
 
@@ -162,6 +184,7 @@
                 v-model="facturaA" 
                 placeholder="Seleccione" 
                 style="width: 100%"
+                @change="cambiarDisabledEmiteFactura()"
               >
                 <el-option
                   v-for="item in opcionesFacturaA"
@@ -171,6 +194,26 @@
                 />
               </el-select>
             </el-col>
+            <!-- {{facturaA}} -->
+            <el-col :span="3">
+              <span style="text-align: center">IVA</span>
+              <el-input-number
+                :controls="false"
+                v-model="montoIVA"
+                style="width: 100%"
+                :disabled="disabledEmiteFactura"
+                @change="calcularTotalHomegeno()"
+              ></el-input-number>
+            </el-col>
+          </el-row>
+
+          <el-row :gutter="10" style="margin-top: 10px">
+            <el-col :span="3"></el-col>
+            <el-col :span="3"></el-col>
+            <el-col :span="3"></el-col>
+            <el-col :span="3"></el-col>
+            <el-col :span="6"></el-col>
+            <el-col :span="3"></el-col>
             <el-col :span="3">
               <span style="text-align: center">Flete</span>
               <el-input-number
@@ -209,7 +252,7 @@
             <el-col :span="6"></el-col>
             <el-col :span="3"></el-col>
             <el-col :span="3">
-              <span style="text-align: center">Tot. homogéneo</span>
+              <span style="text-align: center">Total</span>
               <el-input-number
                 :controls="false"
                 v-model="totalHomogeneo"
@@ -271,6 +314,8 @@ export default {
       totalPP: 0,
       precioFlete: null,
       facturaA: null,
+      montoIVA: 0,
+      disabledEmiteFactura: true,
       arrayCondicionesPago: [],
       condicionpago: null,
       descuentosyBonificaciones: null,
@@ -312,6 +357,8 @@ export default {
       this.totalPP = 0
       this.precioFlete = null
       this.facturaA = null
+      this.montoIVA = 0
+      this.disabledEmiteFactura = true
 
       this.arrayCondicionesPago = []
       this.condicionpago = null
@@ -358,6 +405,9 @@ export default {
 
             let proveedoresApi = []
             proveedoresApi = respuestaApi.data.proveedores;
+            console.log("proveedoresApi");
+            console.log(proveedoresApi);
+
 
             proveedoresApi.forEach((elemento) => {
               if (this.idProveedor == elemento.proveedor_id) {
@@ -418,6 +468,8 @@ export default {
           producto_nombre: ele.productoPresupuestacion.producto_nombre,
           producto_cantidad_a_comprar: ele.productoPresupuestacion.producto_cantidad_a_comprar,
           precio_png: ele.productoPresupuestacion.precio_png,
+          factor: 1,
+          cantidad_proveedor: ele.productoPresupuestacion.producto_cantidad_a_comprar,
           iva: ele.productoPresupuestacion.iva,
           precio_pu: ele.productoPresupuestacion.precio_pu,
           precio_pp: ele.productoPresupuestacion.precio_pp,
@@ -457,7 +509,13 @@ export default {
               this.facturaA = "Si"
             } else {
               this.facturaA = "No"
-              
+            }
+
+            // monto factura A
+            if (response.data.presupuestacionProveedorDB.proveedor_monto_factura_A == null) {
+              this.montoIVA = 0
+            } else {
+              this.montoIVA = response.data.presupuestacionProveedorDB.proveedor_monto_factura_A
             }
 
             // Forma de pago
@@ -513,6 +571,10 @@ export default {
               elemento.producto_nombre = ele.producto_nombre
               
               elemento.producto_cantidad_real_a_comprar = ele.producto_cantidad_a_comprar
+
+              elemento.factor = ele.factor
+
+              elemento.cantidad_proveedor= ele.cantidad_proveedor
               
               elemento.precio_png = ele.precio_png
               
@@ -533,6 +595,15 @@ export default {
         this.loadingArrayInformacionParaCarga = false;
 
         // this.sumarPP()
+    },
+    
+    cambiarCantidadProveedor(props){
+      console.log("cambia");
+
+      console.log("props");
+      console.log(props);
+
+      this.arrayInformacionParaCarga[props.$index].cantidad_proveedor = this.arrayInformacionParaCarga[props.$index].producto_cantidad_a_comprar * this.arrayInformacionParaCarga[props.$index].factor 
     },
 
     calcularPrecioPP(props){
@@ -591,6 +662,8 @@ export default {
       })
 
       let total = this.totalPP.toFixed(2)
+      console.log("total");
+      console.log(total);
       this.totalPP = total
       // console.log(this.totalPP);
       // console.log("this.arrayInformacionParaCarga[props.$index].precio_pp");
@@ -604,6 +677,19 @@ export default {
       this.calcularTotalHomegeno()
     },
 
+    cambiarDisabledEmiteFactura(){
+      console.log("emite factura");
+      if (this.facturaA == 0 || this.facturaA === "No") {
+        this.disabledEmiteFactura = false
+      } else {
+        if (this.facturaA == 1 || this.facturaA == "Si") {
+          this.disabledEmiteFactura = true
+          this.montoIVA = 0
+          this.calcularTotalHomegeno()          
+        }
+      }
+    },
+
     calcularTotalHomegeno(){
       console.log("this.totalPP");
       console.log(parseFloat(this.totalPP));
@@ -614,49 +700,60 @@ export default {
       console.log("this.descuentosyBonificaciones");
       console.log(parseFloat(this.descuentosyBonificaciones));
 
-      let totalHomogeneoVar = parseFloat(this.totalPP) + parseFloat(this.precioFlete) + parseFloat(this.descuentosyBonificaciones)
+      
+    
+      let totalHomogeneoVar = parseFloat(this.totalPP) + parseFloat(this.precioFlete) + parseFloat(this.descuentosyBonificaciones) + parseFloat(this.montoIVA)
 
       this.totalHomogeneo = totalHomogeneoVar.toFixed(2)
     },
 
     async onSubmit(){
-      this.loadingBtnGuardar = true
-      console.log("this.arrayInformacionParaCarga");
-      console.log(this.arrayInformacionParaCarga);
+      if (this.condicionpago == null) {
+        ElMessage({
+          type: 'error',
+          message: '¡Se debe seleccionar forma de pago!',
+        })
+      } else {
+        this.loadingBtnGuardar = true
+        console.log("this.arrayInformacionParaCarga");
+        console.log(this.arrayInformacionParaCarga);
 
-      let params = {
-        idProveedor: this.idProveedor,
-        idPresupuestacion: this.idPresupuestacion,
-        totalPP: this.totalPP,
-        precioFlete: this.precioFlete,
-        // facturaA: this.facturaA,
-        // condicionpago: this.condicionpago,
-        descuentosyBonificaciones: this.descuentosyBonificaciones,
-        totalHomogeneo: this.totalHomogeneo,
-        arrProductosProveedores: JSON.stringify(this.arrayInformacionParaCarga)
-      }
-
-      // if (this.facturaA == "Si") {
-      //   params.facturaA = 1
-      // } else {
-      //   params.facturaA = 0
-      // }
-
-      this.opcionesFacturaA.forEach((ele) => {
-        if (this.facturaA == ele.value || this.facturaA == ele.label) {
-          params.facturaA = ele.value
+        let params = {
+          idProveedor: this.idProveedor,
+          idPresupuestacion: this.idPresupuestacion,
+          totalPP: this.totalPP,
+          precioFlete: this.precioFlete,
+          // facturaA: this.facturaA,
+          // condicionpago: this.condicionpago,
+          proveedor_monto_factura_A: this.montoIVA,
+          descuentosyBonificaciones: this.descuentosyBonificaciones,
+          totalHomogeneo: this.totalHomogeneo,
+          arrProductosProveedores: JSON.stringify(this.arrayInformacionParaCarga)
         }
-      })
 
-      this.arrayCondicionesPago.forEach((elemento) => {
-        if (this.condicionpago === elemento.condicionpago_nombre ||
-            this.condicionpago === elemento.condicionpago_id
-        ) {
-          params.condicionpago = elemento.condicionpago_id
-        }
-      })
+        // if (this.facturaA == "Si") {
+        //   params.facturaA = 1
+        // } else {
+        //   params.facturaA = 0
+        // }
 
-      await this.axios.post("/api/presupuestacionproductosproveedor/crear", params)
+        this.opcionesFacturaA.forEach((ele) => {
+          if (this.facturaA == ele.value || this.facturaA == ele.label) {
+            params.facturaA = ele.value
+          }
+        })
+
+        this.arrayCondicionesPago.forEach((elemento) => {
+          if (this.condicionpago === elemento.condicionpago_nombre ||
+              this.condicionpago === elemento.condicionpago_id
+          ) {
+            params.condicionpago = elemento.condicionpago_id
+          }
+        })
+
+
+
+        await this.axios.post("/api/presupuestacionproductosproveedor/crear", params)
           .then(response => {
             console.log(response);
 
@@ -669,6 +766,9 @@ export default {
               this.cerrar()
             }
           })
+      }
+
+      
     },
 
     classChecker({ row, column }) {

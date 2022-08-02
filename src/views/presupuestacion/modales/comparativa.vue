@@ -7,6 +7,7 @@
       width="99%"
     >
       <div v-loading="loadingTabla">
+        <!-- {{datosAPI}} -->
         <el-table
           :data="arraySoloProductos"
           border
@@ -89,12 +90,42 @@
                 i
                </el-button>
             </template>
+
+              <!-- Factor -->
+              <el-table-column 
+                label="Factor" 
+                align="center"
+                prop="factor"
+                width="75px"
+              >
+                <template #default="scope" >
+                  <el-input-number
+                    v-model="item.productos[scope.$index].factor"
+                    :controls="false"
+                    style="width: 100%"
+                    @change="cambiarCantidadFactor(item.productos[scope.$index], scope)"
+                  ></el-input-number>
+                </template>
+              </el-table-column>
+
+              <!-- Cantidad proveedor -->
+              <el-table-column 
+                label="Cant" 
+                align="center"
+                prop="cantProv"
+                width="60px"
+              >
+                <template #default="scope" >
+                  {{parseFloat(item.productos[scope.$index].cantidad_proveedor)}}
+                </template>
+              </el-table-column>    
               
               <!-- PNG -->
               <el-table-column 
                 label="PNG" 
                 align="center"
                 prop="png"
+                width="55px"
               >
                 <!-- <template #default="scope" >
                   {{parseFloat(item.productos[scope.$index].precio_png)}}
@@ -114,6 +145,7 @@
                 label="IVA" 
                 align="center"
                 prop="iva"
+                width="55px"
               >
                 <template #default="scope" >
                   {{parseFloat(item.productos[scope.$index].iva)}}
@@ -124,7 +156,8 @@
               <el-table-column 
                 label="PU" 
                 align="center"
-                prop="pU"
+                prop="pu"
+                width="65px"
               >
                 <template #default="scope" >
                   {{parseFloat(item.productos[scope.$index].precio_pu)}}
@@ -138,6 +171,8 @@
                 @select="seleccionar(param)"
                 style="background-color: red;"
                 prop="pp"
+                width="90px"
+                size="small"
               >
                 <template #default="scope">
                   <el-checkbox 
@@ -145,7 +180,7 @@
                     :label="parseFloat(item.productos[scope.$index].precio_pp)" 
                     size="large" 
                     @change="cambiarSeleccionProductoSegmentado(scope, item.productos[scope.$index])"
-                    style="margin-left: 20px; color: black"
+                    style="color: black"
                   />
                 </template>
               </el-table-column>
@@ -290,6 +325,8 @@ export default {
                 proveedor_nombre: ele.proveedor_nombre ,
                 updated_at: ele.updated_at ,
                 productoSeleccionado: false,
+                factor: ele.factor,
+                cantidad_proveedor: ele.cantidad_proveedor
               }
 
               auxProd.push(filaProd)
@@ -316,6 +353,8 @@ export default {
             this.arrayPrecioPPProveedores.push(fila1)
             this.arrayPrecioPPProveedores.push(fila1)
             this.arrayPrecioPPProveedores.push(fila1)
+            this.arrayPrecioPPProveedores.push(fila1)
+
 
 
             let fila = {
@@ -356,6 +395,9 @@ export default {
 
         this.arraySoloProductos.push(fila);
       });
+
+      // let fila1 = {}
+      // this.arraySoloProductos.push(fila1)
 
       // console.log("this.arraySoloProductos");
       // console.log(this.arraySoloProductos);
@@ -437,6 +479,35 @@ export default {
 
 
       
+    },
+
+    cambiarCantidad(props){
+      console.log("props");
+      console.log(props);
+
+      console.log("this.datosAPI");
+      console.log(this.datosAPI);
+
+      this.datosAPI.forEach((elemento) => {
+        elemento.productos.forEach((ele) => {
+          if (props.producto_id == ele.producto_id) {
+            console.log("ele");
+            console.log(ele);
+
+            ele.cantidad_proveedor = props.cantidad_a_comprar * ele.factor
+          }
+        })     
+      })
+    },
+
+    cambiarCantidadFactor(item, scope){
+      console.log("item cantidad factor");
+      console.log(item);
+
+      console.log("scope.row");
+      console.log(scope.row);
+
+      item.cantidad_proveedor = scope.row.cantidad_a_comprar * item.factor
     },
 
     agregar(scope, item, precio, index) {
@@ -595,15 +666,18 @@ export default {
 
     cellClick(param){
       console.log("param celdas");
-      console.log(param);
+      // console.log(param);
 
     },
 
     getSummaries(param) {
+      console.log("param de getSummaries");
+      console.log(param);
+
       const  tabla = this.$refs.tablaComparativa
       const { columns, data } = param;
       const sums = [];
-      let ind = 5
+      let ind = 7
 
       this.datosAPI.forEach((elemento, index) => {
         if (index == 0) {
@@ -614,9 +688,9 @@ export default {
           sums[ind] = sums[ind] + ele.precio_pp
         })
 
-        sums[ind] = '$' + sums[ind].toFixed(2)
+        sums[ind] = sums[ind].toFixed(2)
 
-        ind=ind+4
+        ind=ind+6
       })
 
       console.log("sums");
@@ -735,39 +809,42 @@ export default {
     },
 
     classChecker({ row, column, rowIndex, columnIndex }) {
-      console.log("*******************************");
-      console.log("rowIndex de classchecker");
-      console.log(rowIndex);
+      // console.log("*******************************");
+      // console.log("rowIndex de classchecker");
+      // console.log(rowIndex);
 
-      console.log("columnIndex de classchecker");
-      console.log(columnIndex);
+      // console.log("columnIndex de classchecker");
+      // console.log(columnIndex);
 
-      console.log("column de classchecker");
-      console.log(column);
+      // console.log("column de classchecker");
+      // console.log(column);
       
       // Proveedor1
       if (columnIndex == 2) {
         return {'background': '#4b86b4' , 'color': 'black'}
       }
+      
       if (columnIndex == 3) {
         return {'background': '#4b86b4' , 'color': 'black'}
       }
+      
       if (columnIndex == 4) {
         return {'background': '#4b86b4' , 'color': 'black'}
       }
+     
       if (columnIndex == 5) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+      
+      if (columnIndex == 6) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+      
+      if (columnIndex == 7) {
         return {'background': '#4b86b4' , 'color': 'black'}
       }
 
       // P2
-      if (columnIndex == 6) {
-        return {'background': '#adcbe3' , 'color': 'black'}
-      }
-
-      if (columnIndex == 7) {
-        return {'background': '#adcbe3' , 'color': 'black'}
-      }
-
       if (columnIndex == 8) {
         return {'background': '#adcbe3' , 'color': 'black'}
       }
@@ -776,144 +853,140 @@ export default {
         return {'background': '#adcbe3' , 'color': 'black'}
       }
 
-      // P3
       if (columnIndex == 10) {
-        return {'background': '#e7eff6' , 'color': 'black'}
+        return {'background': '#adcbe3' , 'color': 'black'}
       }
 
       if (columnIndex == 11) {
-        return {'background': '#e7eff6' , 'color': 'black'}
+        return {'background': '#adcbe3' , 'color': 'black'}
       }
-
+      
       if (columnIndex == 12) {
-        return {'background': '#e7eff6' , 'color': 'black'}
+        return {'background': '#adcbe3' , 'color': 'black'}
       }
 
       if (columnIndex == 13) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      // P3
+      if (columnIndex == 14) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 15) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 16) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 17) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 18) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 19) {
         return {'background': '#e7eff6' , 'color': 'black'}
       }
 
       // P4
-      if (columnIndex == 14) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      if (columnIndex == 15) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-      
-      if (columnIndex == 16) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      if (columnIndex == 17) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-
-      //P5
-      if (columnIndex == 18) {
-        return {'background': '#4b86b4' , 'color': 'black'}
-      }
-
-      if (columnIndex == 19) {
-        return {'background': '#4b86b4' , 'color': 'black'}
-      }
-
       if (columnIndex == 20) {
-        return {'background': '#4b86b4' , 'color': 'black'}
+        return {'background': '#63ace5' , 'color': 'black'}
       }
 
       if (columnIndex == 21) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+      
+      if (columnIndex == 22) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 23) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 24) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 25) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+
+      //P5
+      if (columnIndex == 26) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 27) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 28) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 29) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+      
+      if (columnIndex == 30) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 31) {
         return {'background': '#4b86b4' , 'color': 'black'}
       }
       
       //P5
-      if (columnIndex == 22) {
+      if (columnIndex == 32) {
         return {'background': '#adcbe3' , 'color': 'black'}
       }
 
-      if (columnIndex == 23) {
+      if (columnIndex == 33) {
         return {'background': '#adcbe3' , 'color': 'black'}
       }
 
-      if (columnIndex == 24) {
+      if (columnIndex == 34) {
         return {'background': '#adcbe3' , 'color': 'black'}
       }
 
-      if (columnIndex == 25) {
+      if (columnIndex == 35) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 36) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 37) {
         return {'background': '#adcbe3' , 'color': 'black'}
       }
 
       // P6
-      if (columnIndex == 26) {
-        return {'background': '#e7eff6' , 'color': 'black'}
-      }
-
-      if (columnIndex == 27) {
-        return {'background': '#e7eff6' , 'color': 'black'}
-      }
-
-      if (columnIndex == 28) {
-        return {'background': '#e7eff6' , 'color': 'black'}
-      }
-
-      if (columnIndex == 29) {
-        return {'background': '#e7eff6' , 'color': 'black'}
-      }
-
-      // P7
-      if (columnIndex == 30) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      if (columnIndex == 31) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      if (columnIndex == 32) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      if (columnIndex == 33) {
-        return {'background': '#63ace5' , 'color': 'black'}
-      }
-
-      //P8
-      if (columnIndex == 34) {
-        return {'background': '#4b86b4' , 'color': 'black'}
-      }
-
-      if (columnIndex == 35) {
-        return {'background': '#4b86b4' , 'color': 'black'}
-      }
-
-      if (columnIndex == 36) {
-        return {'background': '#4b86b4' , 'color': 'black'}
-      }
-
-      if (columnIndex == 37) {
-        return {'background': '#4b86b4' , 'color': 'black'}
-      }
-
-      // P9
       if (columnIndex == 38) {
-        return {'background': '#adcbe3' , 'color': 'black'}
+        return {'background': '#e7eff6' , 'color': 'black'}
       }
 
       if (columnIndex == 39) {
-        return {'background': '#adcbe3' , 'color': 'black'}
+        return {'background': '#e7eff6' , 'color': 'black'}
       }
 
       if (columnIndex == 40) {
-        return {'background': '#adcbe3' , 'color': 'black'}
-      }
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }      
 
       if (columnIndex == 41) {
-        return {'background': '#adcbe3' , 'color': 'black'}
+        return {'background': '#e7eff6' , 'color': 'black'}
       }
 
-      // P10
       if (columnIndex == 42) {
         return {'background': '#e7eff6' , 'color': 'black'}
       }
@@ -922,15 +995,15 @@ export default {
         return {'background': '#e7eff6' , 'color': 'black'}
       }
 
+      // P7
       if (columnIndex == 44) {
-        return {'background': '#e7eff6' , 'color': 'black'}
+        return {'background': '#63ace5' , 'color': 'black'}
       }
 
       if (columnIndex == 45) {
-        return {'background': '#e7eff6' , 'color': 'black'}
+        return {'background': '#63ace5' , 'color': 'black'}
       }
 
-      // P11
       if (columnIndex == 46) {
         return {'background': '#63ace5' , 'color': 'black'}
       }
@@ -944,6 +1017,106 @@ export default {
       }
 
       if (columnIndex == 49) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      //P8
+      if (columnIndex == 50) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 51) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 52) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 53) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 54) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      if (columnIndex == 55) {
+        return {'background': '#4b86b4' , 'color': 'black'}
+      }
+
+      // P9
+      if (columnIndex == 56) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 57) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 58) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 59) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 60) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      if (columnIndex == 61) {
+        return {'background': '#adcbe3' , 'color': 'black'}
+      }
+
+      // P10
+      if (columnIndex == 62) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 63) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 64) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 65) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 66) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      if (columnIndex == 67) {
+        return {'background': '#e7eff6' , 'color': 'black'}
+      }
+
+      // P11
+      if (columnIndex == 68) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 69) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 70) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 71) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 72) {
+        return {'background': '#63ace5' , 'color': 'black'}
+      }
+
+      if (columnIndex == 73) {
         return {'background': '#63ace5' , 'color': 'black'}
       }
 

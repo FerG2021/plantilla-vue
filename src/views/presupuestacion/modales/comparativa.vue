@@ -7,207 +7,251 @@
       width="99%"
     >
       <div v-loading="loadingTabla">
-        <!-- {{datosAPI}} -->
-        <el-table
-          :data="arraySoloProductos"
-          border
-          stripe
-          style="width: 100%;"
-          show-summary
-          @sort-change="sortChange()"
-          @cell-click="cellClick"
-          :summary-method="getSummaries"
-          ref="tablaComparativa"
-          :cell-style="classChecker"
-        >
-          <el-table-column
-            label="Productos"
-            align="center"
-            style="background-color: red"
-            fixed
-          >
-            <!-- <el-table-column prop="date" label="ID" align="center" fixed>
-              <template #default="props">
-                {{ props.row.producto_id }}
-              </template>
-            </el-table-column> -->
+        <el-scrollbar @setScrollLeft="scrollLeft" :scroll="scroll">
+          <div class="scrollbar-flex-content">
+            <!-- {{datosAPI}} -->
+                
+            <!-- :summary-method="getSummaries" -->
+            <div id="tabla1">
+              <el-table
+                :data="arraySoloProductos"
+                border
+                stripe
+                style="width: 100%;"
+                show-summary
+                @sort-change="sortChange()"
+                @cell-click="cellClick"
+                ref="tablaComparativa"
+                :cell-style="classChecker"
+                :header-cell-style="headerStylePrincipalTable"
+              >
+                <el-table-column
+                  label="Productos"
+                  align="center"
+                  style="background-color: red"
+                  fixed
+                >
+                  <!-- <el-table-column prop="date" label="ID" align="center" fixed>
+                    <template #default="props">
+                      {{ props.row.producto_id }}
+                    </template>
+                  </el-table-column> -->
 
-            <el-table-column 
-              prop="date" 
-              label="Nombre" 
-              align="center"
-              fixed
+                  <el-table-column 
+                    prop="date" 
+                    label="Nombre" 
+                    align="center"
+                    fixed
+                  >
+                    <template #default="props">
+                      {{ props.row.producto_nombre }}
+                    </template>
+                  </el-table-column>
+
+                  <el-table-column
+                    prop="date"
+                    label="Cant. a comprar"
+                    align="center"
+                    fixed
+                  >
+                    <template #default="props">
+                      <!-- {{props.row.cantidad_a_comprar}} -->
+                      <el-input-number
+                        v-model="props.row.cantidad_a_comprar"
+                        style="width: 100%"
+                        :controls="false"
+                        @change="cambiarCantidad(props)"
+                      ></el-input-number>
+                    </template>
+                  </el-table-column>
+                </el-table-column>
+
+                <el-table-column label="Proveedores" align="center">
+                  <el-table-column
+                    v-for="(item, index) in datosAPI"
+                    :key="index"
+                    :label="item.proveedor_nombre"
+                    align="center"
+                    :column-key="item.proveedor_id"
+                    :cell-style="colorColumnas(index)"
+                  > 
+                  <template #header>
+                    <el-checkbox 
+                      v-model="item.proveedorSeleccionado" 
+                      :label="item.proveedor_nombre" 
+                      size="large" 
+                      @change="cambiarProveedorSeleccionado(item)"
+                    />
+                    <el-button
+                      type="primary"
+                      size="small"
+                      circle
+                      style="margin-left: 5px"
+                      @click="$refs.modalCargaPorProveedorMostrar.abrir(item.proveedor_id, item.presupuestacion_id)"
+                    >
+                      <!-- <span class="material-icons">info</span> -->
+                      i
+                    </el-button>
+                  </template>
+
+                    <!-- Factor -->
+                    <el-table-column 
+                      label="Factor" 
+                      align="center"
+                      prop="factor"
+                      width="75px"
+                    >
+                      <template #default="scope" >
+                        <el-input-number
+                          v-model="item.productos[scope.$index].factor"
+                          :controls="false"
+                          style="width: 100%"
+                          @change="cambiarCantidadFactor(item.productos[scope.$index], scope)"
+                        ></el-input-number>
+                      </template>
+                    </el-table-column>
+
+                    <!-- Cantidad proveedor -->
+                    <el-table-column 
+                      label="Cant" 
+                      align="center"
+                      prop="cantProv"
+                      width="60px"
+                    >
+                      <template #default="scope" >
+                        {{parseFloat(item.productos[scope.$index].cantidad_proveedor)}}
+                      </template>
+                    </el-table-column>    
+                    
+                    <!-- PNG -->
+                    <el-table-column 
+                      label="PNG" 
+                      align="center"
+                      prop="png"
+                      width="55px"
+                    >
+                      <template #default="scope" >
+                        {{parseFloat(item.productos[scope.$index].precio_png)}}
+                      </template>
+                    </el-table-column>
+
+                    <!-- IVA -->
+                    <el-table-column 
+                      label="IVA" 
+                      align="center"
+                      prop="iva"
+                      width="55px"
+                    >
+                      <template #default="scope" >
+                        {{parseFloat(item.productos[scope.$index].iva)}}
+                      </template>
+                    </el-table-column>
+
+                    <!-- PU -->
+                    <el-table-column 
+                      label="PU" 
+                      align="center"
+                      prop="pu"
+                      width="65px"
+                    >
+                      <template #default="scope" >
+                        {{parseFloat(item.productos[scope.$index].precio_pu)}}
+                      </template>
+                    </el-table-column>
+                    
+                    <!-- PP -->
+                    <el-table-column 
+                      label="PP" 
+                      align="center"
+                      @select="seleccionar(param)"
+                      style="background-color: red;"
+                      prop="pp"
+                      width="90px"
+                      size="small"
+                    >
+                      <template #default="scope" >
+                        <el-checkbox 
+                          v-model="item.productos[scope.$index].productoSeleccionado" 
+                          :label="parseFloat(item.productos[scope.$index].precio_pp)" 
+                          size="small" 
+                          @change="cambiarSeleccionProductoSegmentado(scope, item.productos[scope.$index])"
+                          style="color: black"
+                        />
+                      </template>
+                    </el-table-column>
+
+
+                  </el-table-column>
+                </el-table-column>
+              </el-table>
+            </div>
+
+            <!-- muestro la informacion de los proveedores -->
+            <!-- {{arrayInfoProveedores}} -->
+            <el-table
+              stripe
+              :data="arrayTotal"
+              :cell-style="classChecker"
+              :header-cell-style="headerStyle"
+              id="tabla2"
             >
-              <template #default="props">
-                {{ props.row.producto_nombre }}
-              </template>
-            </el-table-column>
+              <el-table-column></el-table-column>
+              <el-table-column></el-table-column>
+              <el-table-column v-for="(item, index) in arrayInfoProveedores" :key="index" align="center">
+                <!-- <template #default="scope"> -->
+                <el-table-column width="75px" label="F.P." align="center">
+                  {{item.proveedor_forma_de_pago}}
+                </el-table-column>
+                <el-table-column width="60px" label="Fact. A" align="center">
+                  <span v-if="item.proveedor_factura_A == 0">
+                    No
+                  </span>
 
-            <el-table-column
-              prop="date"
-              label="Cant. a comprar"
-              align="center"
-              fixed
+                  <span v-if="item.proveedor_factura_A == 1">
+                    Si
+                  </span>
+                  <!-- {{item.proveedor_factura_A}} -->
+                </el-table-column>
+                <el-table-column width="55px" label="Monto" align="center">
+                  {{item.proveedor_monto_factura_A}}
+                </el-table-column>
+                <el-table-column width="55px" label="Flete" align="center">
+                  {{item.proveedor_monto_flete}}
+                </el-table-column>
+                <el-table-column width="65px" label="DyB" align="center">
+                  {{item.proveedor_monto_descuentos_bonificaciones}}
+                </el-table-column>
+                <el-table-column width="90px" label="Total" align="center">
+                  <!-- {{item.proveedor_monto_totalPP}} -->
+                  {{item.proveedor_monto_total_homogeneo}}
+                </el-table-column>
+                <!-- </template> -->
+              </el-table-column>
+            </el-table>
+
+            
+            
+            <!-- muestro el total -->
+            <el-table 
+              :data="arrayTotal"
+              style="margin-top: 15px"
             >
-              <!-- <template #default="props">
-                {{ props.row.cantidad_a_comprar }}
-              </template> -->
-
-              <template #default="props">
-                <el-input-number
-                  v-model="props.row.cantidad_a_comprar"
-                  :controls="false"
-                  style="width: 100%"
-                ></el-input-number>
-              </template>
-            </el-table-column>
-          </el-table-column>
-
-          <el-table-column label="Proveedores" align="center">
-            <el-table-column
-              v-for="(item, index) in datosAPI"
-              :key="index"
-              :label="item.proveedor_nombre"
-              align="center"
-              :column-key="item.proveedor_id"
-              :cell-style="colorColumnas(index)"
-            > 
-            <template #header>
-               <el-checkbox 
-                v-model="item.proveedorSeleccionado" 
-                :label="item.proveedor_nombre" 
-                size="large" 
-                @change="cambiarProveedorSeleccionado(item)"
-              />
-               <el-button
-                type="primary"
-                size="small"
-                circle
-                style="margin-left: 5px"
-                @click="$refs.modalCargaPorProveedorMostrar.abrir(item.proveedor_id, item.presupuestacion_id)"
-               >
-                <!-- <span class="material-icons">info</span> -->
-                i
-               </el-button>
-            </template>
-
-              <!-- Factor -->
-              <el-table-column 
-                label="Factor" 
-                align="center"
-                prop="factor"
-                width="75px"
-              >
-                <template #default="scope" >
-                  <el-input-number
-                    v-model="item.productos[scope.$index].factor"
-                    :controls="false"
-                    style="width: 100%"
-                    @change="cambiarCantidadFactor(item.productos[scope.$index], scope)"
-                  ></el-input-number>
+              <!-- <el-table-column label=""></el-table-column> -->
+              <el-table-column label="Total homog." align="center">
+                <template #default="props">
+                  {{props.row.totalHomogeneo}}
                 </template>
               </el-table-column>
-
-              <!-- Cantidad proveedor -->
-              <el-table-column 
-                label="Cant" 
-                align="center"
-                prop="cantProv"
-                width="60px"
-              >
-                <template #default="scope" >
-                  {{parseFloat(item.productos[scope.$index].cantidad_proveedor)}}
-                </template>
-              </el-table-column>    
-              
-              <!-- PNG -->
-              <el-table-column 
-                label="PNG" 
-                align="center"
-                prop="png"
-                width="55px"
-              >
-                <!-- <template #default="scope" >
-                  {{parseFloat(item.productos[scope.$index].precio_png)}}
-                </template> -->
-
-                <template #default="scope" >
-                  <el-input-number
-                    v-model="item.productos[scope.$index].precio_png"
-                    :controls="false"
-                    style="width: 100%"
-                  ></el-input-number>
-                </template>
+              <el-table-column label=""></el-table-column>
+              <el-table-column v-for="(item, index) in arrayPrecioPPProveedores" :key="index" :label="item.titulo" align="center">
+                <!-- <template #default="scope"> -->
+                  {{item.totalPP}}
+                <!-- </template> -->
               </el-table-column>
 
-              <!-- IVA -->
-              <el-table-column 
-                label="IVA" 
-                align="center"
-                prop="iva"
-                width="55px"
-              >
-                <template #default="scope" >
-                  {{parseFloat(item.productos[scope.$index].iva)}}
-                </template>
-              </el-table-column>
-
-              <!-- PU -->
-              <el-table-column 
-                label="PU" 
-                align="center"
-                prop="pu"
-                width="65px"
-              >
-                <template #default="scope" >
-                  {{parseFloat(item.productos[scope.$index].precio_pu)}}
-                </template>
-              </el-table-column>
-              
-              <!-- PP -->
-              <el-table-column 
-                label="PP" 
-                align="center"
-                @select="seleccionar(param)"
-                style="background-color: red;"
-                prop="pp"
-                width="90px"
-                size="small"
-              >
-                <template #default="scope">
-                  <el-checkbox 
-                    v-model="item.productos[scope.$index].productoSeleccionado" 
-                    :label="parseFloat(item.productos[scope.$index].precio_pp)" 
-                    size="large" 
-                    @change="cambiarSeleccionProductoSegmentado(scope, item.productos[scope.$index])"
-                    style="color: black"
-                  />
-                </template>
-              </el-table-column>
-
-
-            </el-table-column>
-          </el-table-column>
-        </el-table>
-
-        <el-table 
-          :data="arrayTotal"
-          style="margin-top: 15px"
-        >
-          <!-- <el-table-column label=""></el-table-column> -->
-          <el-table-column label="Compra segm." align="center">
-            <template #default="props">
-              {{props.row.totalHomogeneo}}
-            </template>
-          </el-table-column>
-          <el-table-column label=""></el-table-column>
-          <el-table-column v-for="(item, index) in arrayPrecioPPProveedores" :key="index" :label="item.titulo" align="center">
-             <!-- <template #default="scope"> -->
-              {{item.totalPP}}
-             <!-- </template> -->
-          </el-table-column>
-
-        </el-table>
+            </el-table>
+          </div>
+        </el-scrollbar>
 
         <!-- {{arrayPrecioPPProveedores}} -->
       </div>
@@ -244,7 +288,8 @@ export default {
       longitudProveedores: null,
       totalHomogeneo: 0,
       arrayTotal: [],
-      arrayPrecioPPProveedores: []
+      arrayPrecioPPProveedores: [],
+      arrayInfoProveedores: [],
     };
   },
 
@@ -252,6 +297,8 @@ export default {
     abrir(id) {
       this.id = null;
       this.id = id;
+      console.log("id que mando");
+      console.log(this.id);
 
       this.datosAPI = [];
       this.arraySoloProductos = [];
@@ -264,9 +311,21 @@ export default {
       this.loadingTabla = true;
       this.totalHomogeneo = 0
       this.arrayPrecioPPProveedores = []
+      this.arrayInfoProveedores = []
 
 
       this.$refs.modal.abrir();
+
+
+      let t1 = document.querySelector('#tabla1');
+      console.log("t1");
+      console.log(t1);
+
+      // let t2 = document.querySelector('#tabla2');
+
+      // t1.addEventListener('scroll', () => {
+      //   t2.scrollLeft = box1.scrollLeft;
+      // });
 
       // limpio los campos
       this.getDatos();
@@ -378,7 +437,8 @@ export default {
         });
 
       this.crearArraySoloProductos();
-      this.calcularTotalHomogeneo()
+      this.calcularTotalHomogeneo();
+      this.getDatosProveedores();
     },
 
     crearArraySoloProductos() {
@@ -490,14 +550,81 @@ export default {
 
       this.datosAPI.forEach((elemento) => {
         elemento.productos.forEach((ele) => {
-          if (props.producto_id == ele.producto_id) {
+          if (props.row.producto_id == ele.producto_id) {
             console.log("ele");
             console.log(ele);
 
-            ele.cantidad_proveedor = props.cantidad_a_comprar * ele.factor
+            ele.cantidad_proveedor = props.row.cantidad_a_comprar * ele.factor
+            let precio = ele.cantidad_proveedor * ele.precio_pu
+            ele.precio_pp = precio.toFixed(2)
           }
         })     
       })
+
+      this.actualizarPrecioTotal()
+    },
+
+    actualizarPrecioTotal(){
+      // console.log("props");
+      // console.log(props);
+
+
+      console.log("llamando a precio total");
+      console.log("this.datosAPI");
+      console.log(this.datosAPI);
+
+      console.log("this.arrayInfoProveedores");
+      console.log(this.arrayInfoProveedores);
+
+
+      this.datosAPI.forEach((elemento) => {
+        let ppParcial = 0
+        let proveedor_id = null
+        elemento.productos.forEach((ele) => {
+          let precioPPParcial = Number(ele.precio_pp)
+          let cantidad = Number(ele.cantidad_proveedor)
+          let numero = precioPPParcial
+          console.log("ele.precio_pp");
+          console.log(ele.precio_pp);
+          console.log("ppParcial antes de sunar");
+          console.log(ppParcial);
+          ppParcial = ppParcial + numero
+          console.log("ppParcial despues de sunar");
+          console.log(ppParcial);
+          proveedor_id = ele
+        })
+
+        console.log("ppParcial");
+        console.log(ppParcial);
+
+        console.log("proveedor@@@@@");
+        console.log(proveedor_id);
+        
+        this.arrayInfoProveedores.forEach((elemento1) => {
+          if (elemento1.proveedor_id == elemento.proveedor_id) {
+
+            console.log("ppParcial");
+            console.log(ppParcial);
+
+            console.log("proveedor_id");
+            console.log(proveedor_id);
+
+            console.log("elemento1");
+            console.log(elemento1);
+
+            let parcial = 0
+            parcial = ppParcial + Number(elemento1.proveedor_monto_descuentos_bonificaciones) + Number(elemento1.proveedor_monto_factura_A) + Number(elemento1.proveedor_monto_flete )+ Number(elemento1.proveedor_monto_descuentos_bonificaciones)
+
+            elemento1.proveedor_monto_total_homogeneo = Number(parcial).toFixed(2)
+            console.log( "elemento1.proveedor_monto_total_homogeneo");
+            console.log( elemento1.proveedor_monto_total_homogeneo);
+
+          }
+        })
+
+      })
+
+
     },
 
     cambiarCantidadFactor(item, scope){
@@ -508,6 +635,8 @@ export default {
       console.log(scope.row);
 
       item.cantidad_proveedor = scope.row.cantidad_a_comprar * item.factor
+
+      this.actualizarPrecioTotal()
     },
 
     agregar(scope, item, precio, index) {
@@ -580,13 +709,14 @@ export default {
       })
     },
 
+    
+
     cambiarProveedorSeleccionado(item){
       console.log("this.datosAPI");
       console.log(this.datosAPI);
 
       console.log("item");
       console.log(item);
-      // 
 
 
       
@@ -637,7 +767,7 @@ export default {
 
       let fila = {
         aux: null,
-        totalHomogeneo: this.totalHomogeneo.toFixed(2),
+        totalHomogeneo: Number(this.totalHomogeneo).toFixed(2),
         aux2: null
       }
 
@@ -664,6 +794,25 @@ export default {
         precioPPParcial = 0
       })
     },
+
+    // traigo los datos de cada uno de los proveedores para mostrar la informacion de la factura, la forma de pago, etc
+    async getDatosProveedores(){
+      await this.axios
+        .get("/api/presupuestacionproductosproveedor/obtenerTodosProveedores/" + this.id)
+        .then((response) => {
+          const respuestaApi = response;
+          // console.log("respuestaApi de getDatos");
+          // console.log(respuestaApi.data);
+
+          if (respuestaApi != null) {
+            this.arrayInfoProveedores = respuestaApi.data
+            console.log("this.arrayInfoProveedores");
+            console.log(this.arrayInfoProveedores);
+
+          }
+      })
+    },
+
 
     cellClick(param){
       console.log("param celdas");
@@ -724,6 +873,339 @@ export default {
       })
 
       this.calcularTotalHomogeneo()
+      
+    },
+
+    scroll(scrollLeft, scrollTop){
+      console.log("scrollLeft");
+      console.log(scrollLeft);
+
+      console.log("scrollTop");
+      console.log(scrollTop);
+
+    },
+
+    scrollLeft(){
+
+    },
+
+    headerStylePrincipalTable(row, column, rowIndex, columnIndex){
+      // P1
+      if (row.rowIndex == 1 && row.columnIndex == 2) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 0) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 1) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 2) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 3) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 4) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 5) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      
+      // P2
+      if (row.rowIndex == 1 && row.columnIndex == 3) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 6) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 7) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 8) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 9) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 10) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 11) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+
+      // P3
+      if (row.rowIndex == 1 && row.columnIndex == 4) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 12) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 13) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 14) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 15) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 16) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 17) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+
+      // P4
+      if (row.rowIndex == 1 && row.columnIndex == 5) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 18) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 19) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 20) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 21) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 22) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 23) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+
+      // P5
+      if (row.rowIndex == 1 && row.columnIndex == 6) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 24) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 25) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 26) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 2 && row.columnIndex == 27) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 28) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+      
+      if (row.rowIndex == 2 && row.columnIndex == 29) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+    },
+
+    headerStyle(row, column, rowIndex, columnIndex) {
+      // console.log("row de headerStyle");
+      // console.log(row);
+      
+      // console.log("column de headerStyle");
+      // console.log(column);
+
+      // console.log("rowIndex de headerStyle");
+      // console.log(rowIndex);
+
+      // console.log("columnIndex de headerStyle");
+      // console.log(columnIndex);
+
+      // P1
+      if (row.rowIndex == 0 && row.columnIndex == 2) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 0) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 1) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 2) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 3) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 4) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 5) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+
+      // P2
+      if (row.rowIndex == 0 && row.columnIndex == 3) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 6) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 7) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 8) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 9) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 10) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 11) {
+        return { background: "#adcbe3", color: "#000000" }
+      }
+
+
+      // P3
+      if (row.rowIndex == 0 && row.columnIndex == 4) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 12) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 13) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 14) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 15) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 16) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 17) {
+        return { background: "#e7eff6", color: "#000000" }
+      }
+
+
+      // P4
+      if (row.rowIndex == 0 && row.columnIndex == 5) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 18) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 19) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 20) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 21) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 22) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 23) {
+        return { background: "#63ace5", color: "#000000" }
+      }
+
+
+      // P4
+      if (row.rowIndex == 0 && row.columnIndex == 6) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 24) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 25) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 26) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 27) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 28) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      if (row.rowIndex == 1 && row.columnIndex == 29) {
+        return { background: "#4b86b4", color: "#000000" }
+      }
+
+      
+
+      
+
       
     },
 
@@ -1125,9 +1607,7 @@ export default {
     
   },
 
-  headerStyle() {
-   return 'blueClass'
-  }
+  
 };
 </script>
 
@@ -1152,5 +1632,9 @@ export default {
 
   .my-header {
     background: blue !important; 
+  }
+
+  .scrollbar-flex-content {
+    display: block;
   }
 </style>

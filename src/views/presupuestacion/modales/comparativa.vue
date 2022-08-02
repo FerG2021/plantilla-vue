@@ -48,8 +48,16 @@
               align="center"
               fixed
             >
-              <template #default="props">
+              <!-- <template #default="props">
                 {{ props.row.cantidad_a_comprar }}
+              </template> -->
+
+              <template #default="props">
+                <el-input-number
+                  v-model="props.row.cantidad_a_comprar"
+                  :controls="false"
+                  style="width: 100%"
+                ></el-input-number>
               </template>
             </el-table-column>
           </el-table-column>
@@ -88,8 +96,16 @@
                 align="center"
                 prop="png"
               >
+                <!-- <template #default="scope" >
+                  {{parseFloat(item.productos[scope.$index].precio_png)}}
+                </template> -->
+
                 <template #default="scope" >
-                  $ {{parseFloat(item.productos[scope.$index].precio_png)}}
+                  <el-input-number
+                    v-model="item.productos[scope.$index].precio_png"
+                    :controls="false"
+                    style="width: 100%"
+                  ></el-input-number>
                 </template>
               </el-table-column>
 
@@ -100,7 +116,7 @@
                 prop="iva"
               >
                 <template #default="scope" >
-                  {{parseFloat(item.productos[scope.$index].iva)}} %
+                  {{parseFloat(item.productos[scope.$index].iva)}}
                 </template>
               </el-table-column>
 
@@ -111,7 +127,7 @@
                 prop="pU"
               >
                 <template #default="scope" >
-                  $ {{parseFloat(item.productos[scope.$index].precio_pu)}}
+                  {{parseFloat(item.productos[scope.$index].precio_pu)}}
                 </template>
               </el-table-column>
               
@@ -123,10 +139,10 @@
                 style="background-color: red;"
                 prop="pp"
               >
-                <template #default="scope" >
+                <template #default="scope">
                   <el-checkbox 
                     v-model="item.productos[scope.$index].productoSeleccionado" 
-                    :label=" '$' + parseFloat(item.productos[scope.$index].precio_pp)" 
+                    :label="parseFloat(item.productos[scope.$index].precio_pp)" 
                     size="large" 
                     @change="cambiarSeleccionProductoSegmentado(scope, item.productos[scope.$index])"
                     style="margin-left: 20px; color: black"
@@ -144,7 +160,7 @@
           style="margin-top: 15px"
         >
           <!-- <el-table-column label=""></el-table-column> -->
-          <el-table-column label="Total homog." align="center">
+          <el-table-column label="Compra segm." align="center">
             <template #default="props">
               {{props.row.totalHomogeneo}}
             </template>

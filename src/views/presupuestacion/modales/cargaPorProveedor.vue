@@ -565,7 +565,7 @@ export default {
               elemento.proveedor_nombre = ele.proveedor_nombre
               
               elemento.proveedor_mail = ele.proveedor_mail
-              
+              // 
               elemento.producto_id = ele.producto_id
               
               elemento.producto_nombre = ele.producto_nombre
